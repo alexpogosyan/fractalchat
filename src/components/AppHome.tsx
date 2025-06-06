@@ -74,9 +74,9 @@ function ThreadItem({ thread }: { thread: Thread }) {
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <p className="text-lg font-medium text-gray-900 mb-2">
             {thread.title || "Untitled Thread"}
-          </h3>
+          </p>
           <p className="text-sm text-gray-500">Created {formattedDate}</p>
         </div>
         <div className="flex items-center text-gray-400">

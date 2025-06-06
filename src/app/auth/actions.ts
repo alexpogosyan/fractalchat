@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase";
 
-export async function login(formData: FormData) {
+export async function signin(formData: FormData) {
   const supabase = await getServerClient();
 
   // type-casting here for convenience

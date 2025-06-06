@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Button } from "@/components/Button";
 
 export default function LandingPage() {
   return (
@@ -16,20 +16,11 @@ export default function LandingPage() {
         A new way to build knowledge with AI
       </p>
 
-      {/* Call-to-action buttons */}
-      <div className="flex space-x-4">
-        <Link
-          href="/auth/signup"
-          className="px-6 py-3 text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-        >
+      {/* Call-to-action button */}
+      <div className="flex justify-center">
+        <Button href="/auth/signup" variant="solid" size="lg">
           Get Started
-        </Link>
-        <Link
-          href="/auth/login"
-          className="px-6 py-3 text-lg font-medium text-blue-600 border border-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-        >
-          Sign In
-        </Link>
+        </Button>
       </div>
     </main>
   );

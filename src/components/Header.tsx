@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getUser, signout } from "@/app/auth/actions";
+import { Button } from "@/components/Button";
 
 export default async function Header() {
   const { user } = await getUser();
@@ -27,28 +28,19 @@ export default async function Header() {
               <>
                 <span className="text-sm text-gray-600">{user.email}</span>
                 <form action={signout}>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-                  >
+                  <Button type="submit" variant="outline" size="sm">
                     Sign out
-                  </button>
+                  </Button>
                 </form>
               </>
             ) : (
               <>
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                >
+                <Button href="/auth/signin" variant="ghost" size="sm">
                   Sign in
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-                >
+                </Button>
+                <Button href="/auth/signup" variant="solid" size="sm">
                   Sign up
-                </Link>
+                </Button>
               </>
             )}
           </div>

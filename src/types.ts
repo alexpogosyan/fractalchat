@@ -13,3 +13,11 @@ export interface Message {
   content: string | null;
   created_at: string;
 }
+
+export interface Anchor {
+  id: string;
+  message_id: string;
+  thread_id: string;
+  start_index: number;
+  end_index: number;
+}

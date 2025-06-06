@@ -1,9 +1,7 @@
 import { getBrowserClient, getServerClient } from "@/lib/supabase";
 
 export function getSupabaseClient() {
-  return typeof window === "undefined"
-    ? getServerClient() // server / SSR
-    : getBrowserClient(); // browser
+  return typeof window === "undefined" ? getServerClient() : getBrowserClient();
 }
 
 export async function getRootThreads() {
