@@ -5,7 +5,7 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-800 px-4">
       <Image
-        src="/logo.png"
+        src="/logo.svg"
         alt="FractalMap Logo"
         width={120}
         height={120}

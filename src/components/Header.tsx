@@ -8,12 +8,11 @@ export default async function Header() {
 
   return (
     <header className="w-full bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+      <div className="px-4 py-2">
+        <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="FractalMap Logo"
               width={32}
               height={32}
@@ -22,7 +21,6 @@ export default async function Header() {
             <span className="text-xl font-bold text-gray-900">FractalMap</span>
           </Link>
 
-          {/* Auth Section */}
           <div className="flex items-center space-x-4">
             {user ? (
               <>
