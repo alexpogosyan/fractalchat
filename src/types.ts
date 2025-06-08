@@ -21,3 +21,9 @@ export interface Anchor {
   start_index: number;
   end_index: number;
 }
+
+export interface ThreadBundle {
+  thread: Thread;
+  messages: Message[];
+  anchors: Anchor[];
+}
