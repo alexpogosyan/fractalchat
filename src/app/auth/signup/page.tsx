@@ -6,15 +6,15 @@ import {
   CardFooter,
 } from "@/components/Card";
 import { Button } from "@/components/Button";
-import { signin } from "../actions";
+import { signup } from "../actions";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
       <Card className="w-full max-w-md">
-        <form action={signin}>
+        <form action={signup}>
           <CardHeader className="mb-4">
-            <CardTitle>Sign in</CardTitle>
+            <CardTitle>Create an account</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -44,7 +44,7 @@ export default function SignInPage() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 required
                 className="w-full px-3 py-2 border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -52,12 +52,12 @@ export default function SignInPage() {
           </CardContent>
           <CardFooter className="flex-col space-y-2">
             <Button type="submit" className="w-full">
-              Sign in
+              Sign up
             </Button>
             <p className="text-sm text-neutral-600 text-center">
-              Don&apos;t have an account?{" "}
-              <a href="/auth/signup" className="text-black hover:underline">
-                Sign up
+              Already have an account?{" "}
+              <a href="/auth/signin" className="text-black hover:underline">
+                Sign in
               </a>
             </p>
           </CardFooter>
