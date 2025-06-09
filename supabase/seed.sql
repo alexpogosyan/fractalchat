@@ -40,9 +40,9 @@ values
   ('75a78a08-779a-4644-94f6-9a8591ca4f43','5ef4a8d8-ba9a-4119-8dab-887d90e90f61','assistant','Sure! Our solar system includes Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. Theres also dwarf planet, Pluto which is no longer considered a planet.','2025-06-04 10:00:10'),
 
   -- sub-threads messages
-  ('be5df0e9-5e0b-42b0-aa9a-9fd7b5f9fe5c','6dbe2535-fce3-4755-b6fa-101c29a5d563','user','more details about mars','2025-06-04 10:04:05'),
+  ('be5df0e9-5e0b-42b0-aa9a-9fd7b5f9fe5c','6dbe2535-fce3-4755-b6fa-101c29a5d563','user','more details about mars please','2025-06-04 10:04:05'),
   ('ad06295f-fb0c-428c-abf6-16e54bd6d87d','6dbe2535-fce3-4755-b6fa-101c29a5d563','assistant','Mars is a cold, desert-like, rocky planet, the fourth from the Sun. Known as the "Red Planet" due to its reddish appearance caused by iron oxide on its surface. Mars has a very thin atmosphere, primarily carbon dioxide, and features like polar ice caps, volcanoes, canyons, and weather patterns.','2025-06-04 10:05:05'),
-  ('82426e83-4ca3-49c7-b00e-2a8639a07f1d','25db97f0-c22c-4a61-b73c-a6135d977e1c','user','tell me about pluto in more details, ...','2025-06-04 10:04:12'),
+  ('82426e83-4ca3-49c7-b00e-2a8639a07f1d','25db97f0-c22c-4a61-b73c-a6135d977e1c','user','tell me about pluto in more details','2025-06-04 10:04:12'),
   ('118b6665-68d7-4752-95eb-638cb2e00817','25db97f0-c22c-4a61-b73c-a6135d977e1c','assistant','Pluto is a dwarf planet, the most famous and largest of its kind, located in the Kuiper Belt, a region of the solar system beyond Neptune. It was once considered the ninth planet, but it was reclassified as a dwarf planet in 2006.','2025-06-04 10:05:12');
 
 

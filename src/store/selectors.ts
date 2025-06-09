@@ -1,5 +1,6 @@
 import { Thread } from "@/types";
 import { useStore } from "./useStore";
+import { useShallow } from "zustand/shallow";
 
 export const useRootThreads = () =>
   useStore(
@@ -10,8 +11,10 @@ export const useMessages = (threadId: string | null) =>
   useStore((s) => (threadId ? s.messages[threadId] ?? [] : []));
 
 export const useAnchorsForMessage = (threadId: string, msgId: string) =>
-  useStore((s) =>
-    (s.anchors[threadId] ?? []).filter((a) => a.message_id === msgId)
+  useStore(
+    useShallow((s) =>
+      (s.anchors[threadId] ?? []).filter((a) => a.message_id === msgId)
+    )
   );
 
 export const useOpenAnchor = (anchorId: string) =>

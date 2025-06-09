@@ -14,6 +14,7 @@ export interface AppState {
   hydrateRootThreads(threads: Thread[]): void;
   syncRootThreads(threads: Thread[]): Promise<void>;
   loadThread(id: string): Promise<void>;
+  toggleAnchor(anchorId: string): void;
 }
 
 export const useStore = create<AppState>()(
@@ -41,6 +42,12 @@ export const useStore = create<AppState>()(
           s.threads[t.id] = t;
         });
       });
+    },
+
+    toggleAnchor(id) {
+      set((s) => ({
+        openAnchorIds: { ...s.openAnchorIds, [id]: !s.openAnchorIds[id] },
+      }));
     },
 
     async syncRootThreads() {
