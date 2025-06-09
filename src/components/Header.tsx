@@ -7,7 +7,7 @@ export default async function Header() {
   const { user } = await getUser();
 
   return (
-    <header className="w-full bg-white border-b border-gray-200 shadow-sm">
+    <header className="w-full bg-white border-b border-gray-200">
       <div className="px-4 py-2">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">

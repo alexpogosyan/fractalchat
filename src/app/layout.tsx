@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import { getUser } from "./auth/actions";
+import Sidebar from "@/components/Sidebar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -13,16 +15,21 @@ export const metadata: Metadata = {
   description: "A new way to build knowledge with AI",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await getUser(); // server-side auth check
+
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <Header />
-        {children}
+        <div className="flex h-[calc(100vh-4rem)]">
+          {user && <Sidebar />}
+          <main className="flex-1 overflow-hidden">{children}</main>
+        </div>
       </body>
     </html>
   );
