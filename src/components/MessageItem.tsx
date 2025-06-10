@@ -1,4 +1,3 @@
-// components/features/ThreadView/MessageItem.tsx
 import { useAnchorsForMessage } from "@/store/selectors";
 import type { Message } from "@/types";
 import AnchorSpan from "./AnchorSpan";
@@ -42,9 +41,21 @@ export default function MessageItem({
     parts.push(msg.content!.slice(cursor));
   }
 
+  const isUser = msg.sender === "user";
+
+  if (isUser) {
+    return (
+      <li className="flex justify-end">
+        <div className="bg-gray-200 text-gray-800 rounded-xl px-3 py-2">
+          <p className="whitespace-pre-wrap align-right">{parts}</p>
+        </div>
+      </li>
+    );
+  }
+
   return (
-    <p className={msg.sender === "user" ? "text-blue-700" : "text-gray-800"}>
-      {parts}
-    </p>
+    <li className="text-gray-800">
+      <p className="whitespace-pre-wrap">{parts}</p>
+    </li>
   );
 }

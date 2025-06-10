@@ -1,10 +1,10 @@
 import { getThreadBundle } from "@/lib/db/server";
-import ThreadClient from "../../../components/ThreadClient";
+import Thread from "../../../components/Thread";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     ids: string[];
-  };
+  }>;
 }
 
 export default async function Page({ params }: PageProps) {
@@ -17,5 +17,5 @@ export default async function Page({ params }: PageProps) {
   }
 
   const bundle = await getThreadBundle(threadId);
-  return <ThreadClient bundle={bundle} />;
+  return <Thread bundle={bundle} />;
 }
