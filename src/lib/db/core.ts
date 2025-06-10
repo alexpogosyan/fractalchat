@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Thread, ThreadBundle } from "@/types";
+import type { Message, Thread, ThreadBundle } from "@/types";
 
 export async function coreGetRootThreads(
   supabase: SupabaseClient
@@ -43,4 +43,40 @@ export async function coreGetThreadBundle(
   if (anchorError) throw anchorError;
 
   return { thread, messages, anchors };
+}
+
+export async function coreCreateThread(
+  supabase: SupabaseClient,
+  parentId: string | null,
+  title: string | null
+) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await supabase
+    .from("threads")
+    .insert({ parent_id: parentId, title, user_id: user.id })
+    .select()
+    .single<Thread>();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function coreInsertMessage(
+  supabase: SupabaseClient,
+  threadId: string,
+  sender: "user" | "assistant",
+  content: string
+) {
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({ thread_id: threadId, sender, content })
+    .select()
+    .single<Message>();
+
+  if (error) throw error;
+  return data;
 }

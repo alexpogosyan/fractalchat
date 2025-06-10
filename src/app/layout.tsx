@@ -28,7 +28,7 @@ export default async function RootLayout({
         <Header />
         <div className="flex h-[calc(100vh-4rem)]">
           {user && <Sidebar />}
-          <main className="flex-1 overflow-hidden">{children}</main>
+          <main className="flex-1">{children}</main>
         </div>
       </body>
     </html>
