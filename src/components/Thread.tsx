@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useStore } from "@/store/useStore";
-import type { ThreadBundle } from "@/types";
+import type { Message, ThreadBundle } from "@/types";
 import MessageItem from "./MessageItem";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "./Breadcrumbs";
@@ -10,7 +10,10 @@ import Composer from "./Composer";
 export default function Thread({ bundle }: { bundle: ThreadBundle }) {
   const hydrate = useStore((s) => s.hydrateBundle);
   const sendMessage = useStore((s) => s.sendMessage);
-  const liveMessages = useStore((s) => s.messages[bundle.thread.id] ?? []);
+
+  const EMPTY: Message[] = [];
+
+  const liveMessages = useStore((s) => s.messages[bundle.thread.id] ?? EMPTY);
 
   const pathname = usePathname();
   const pathIds = pathname.split("/").slice(2);

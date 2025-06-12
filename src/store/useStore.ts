@@ -7,6 +7,7 @@ import {
   insertMessage as dbInsertMessage,
   insertAnchor as dbInsertAnchor,
 } from "@/lib/db/browser";
+import { buildContext } from "@/lib/llm/context";
 
 const LLM_HISTORY_LENGTH = 10;
 
@@ -29,8 +30,8 @@ export interface AppState {
   branchFromSelection: (
     parentThreadId: string,
     messageId: string,
-    start: number,
-    end: number
+    startIndex: number,
+    endIndex: number
   ) => Promise<string>;
 }
 
@@ -112,9 +113,7 @@ export const useStore = create<AppState>()(
         (s.messages[threadId] ??= []).push(userMsg);
       });
 
-      const history = (get().messages[threadId] ?? [])
-        .slice(-LLM_HISTORY_LENGTH)
-        .map((m) => ({ role: m.sender, content: m.content! }));
+      const history = buildContext(threadId, LLM_HISTORY_LENGTH);
 
       const response = await fetch("/api/chat", {
         method: "POST",

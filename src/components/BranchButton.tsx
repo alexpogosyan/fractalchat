@@ -9,17 +9,12 @@ export function BranchButton({
     <button
       style={{
         position: "absolute",
-        top: rect.top + window.scrollY - 36,
+        top: rect.bottom + window.scrollY + 4,
         left: rect.left + window.scrollX,
         zIndex: 1000,
       }}
       className="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow"
       onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          onClick();
-        }
-      }}
     >
       Branch
     </button>
