@@ -5,6 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import {
   createThread as dbCreateThread,
   insertMessage as dbInsertMessage,
+  insertAnchor as dbInsertAnchor,
 } from "@/lib/db/browser";
 
 const LLM_HISTORY_LENGTH = 10;
@@ -25,6 +26,12 @@ export interface AppState {
   createThread(parentId: string | null): Promise<string>;
   sendMessage(threadId: string, prompt: string): Promise<void>;
   getThreadLabel(threadId: string, maxLength?: number): string;
+  branchFromSelection: (
+    parentThreadId: string,
+    messageId: string,
+    start: number,
+    end: number
+  ) => Promise<string>;
 }
 
 export const useStore = create<AppState>()(
@@ -126,6 +133,20 @@ export const useStore = create<AppState>()(
       set((s) => {
         (s.messages[threadId] ??= []).push(aiMsg);
       });
+    },
+
+    async branchFromSelection(parentThreadId, messageId, start, end) {
+      const child = await dbCreateThread(parentThreadId, null);
+      const anchor = await dbInsertAnchor(messageId, child.id, start, end);
+
+      set((s) => {
+        s.threads[child.id] = child;
+        s.messages[child.id] = [];
+        s.anchors[parentThreadId] ??= [];
+        s.anchors[parentThreadId].push(anchor);
+        s.activeThreadId = child.id;
+      });
+      return child.id;
     },
   }))
 );

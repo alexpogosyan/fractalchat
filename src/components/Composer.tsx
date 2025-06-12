@@ -20,6 +20,13 @@ export default function Composer({
     send();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -29,6 +36,7 @@ export default function Composer({
         value={text}
         placeholder="Type your prompt…"
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
         rows={3}
         className="flex-1 border border-gray-200 rounded-xl p-2 text-sm"
       />

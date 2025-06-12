@@ -1,6 +1,11 @@
 import { useAnchorsForMessage } from "@/store/selectors";
 import type { Message } from "@/types";
 import AnchorSpan from "./AnchorSpan";
+import { useRef } from "react";
+import { useTextSelection } from "@/lib/hooks/useSelection";
+import { useRouter } from "next/navigation";
+import { useStore } from "@/store/useStore";
+import { BranchButton } from "./BranchButton";
 
 export default function MessageItem({
   msg,
@@ -43,6 +48,20 @@ export default function MessageItem({
 
   const isUser = msg.sender === "user";
 
+  const spanRef = useRef<HTMLParagraphElement>(null);
+  const sel = useTextSelection(spanRef);
+  const router = useRouter();
+  const branch = useStore((s) => s.branchFromSelection);
+
+  const handleBranch = async () => {
+    if (!sel?.range) return;
+    const start = sel.range.startOffset;
+    const end = sel.range.endOffset;
+
+    const newId = await branch(threadId, msg.id, start, end);
+    router.push(`/t/${[...pathIds, newId].join("/")}`);
+  };
+
   if (isUser) {
     return (
       <li className="flex justify-end">
@@ -55,7 +74,15 @@ export default function MessageItem({
 
   return (
     <li className="text-gray-800">
-      <p className="whitespace-pre-wrap">{parts}</p>
+      <p ref={spanRef} className="whitespace-pre-wrap">
+        {parts}
+      </p>
+      {sel && sel.range && (
+        <BranchButton
+          rect={sel.range.getBoundingClientRect()}
+          onClick={handleBranch}
+        />
+      )}
     </li>
   );
 }
