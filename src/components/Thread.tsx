@@ -10,6 +10,9 @@ import Composer from "./Composer";
 export default function Thread({ bundle }: { bundle: ThreadBundle }) {
   const hydrate = useStore((s) => s.hydrateBundle);
   const sendMessage = useStore((s) => s.sendMessage);
+  const pending = useStore(
+    (s) => s.pendingResponses[bundle.thread.id] ?? false
+  );
 
   const EMPTY: Message[] = [];
 
@@ -21,6 +24,8 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
   const handleSend = async (prompt: string) => {
     await sendMessage(bundle.thread.id, prompt);
   };
+
+  const isEmpty = liveMessages.length === 0;
 
   useEffect(() => {
     hydrate(bundle);
@@ -39,10 +44,18 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
               pathIds={pathIds}
             />
           ))}
+
+          {pending && (
+            <li className="flex">
+              <p className="bg-gray-100 text-gray-500 px-3 py-2 rounded-lg text-sm animate-ellipsis">
+                Thinking<span className="inline-block w-3 text-center">…</span>
+              </p>
+            </li>
+          )}
         </ul>
       </div>
       <div>
-        <Composer onSend={handleSend} />
+        <Composer onSend={handleSend} autoFocus={isEmpty} />
       </div>
     </div>
   );

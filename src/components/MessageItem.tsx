@@ -1,11 +1,12 @@
 import { useAnchorsForMessage } from "@/store/selectors";
 import type { Message } from "@/types";
 import AnchorSpan from "./AnchorSpan";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useTextSelection } from "@/lib/hooks/useSelection";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
 import { BranchButton } from "./BranchButton";
+import { getOffsets } from "@/lib/getOffsets";
 
 export default function MessageItem({
   msg,
@@ -16,8 +17,10 @@ export default function MessageItem({
   threadId: string;
   pathIds: string[];
 }) {
-  const anchors = useAnchorsForMessage(threadId, msg.id).sort(
-    (a, b) => a.start_index - b.start_index
+  const rawAnchors = useAnchorsForMessage(threadId, msg.id);
+  const anchors = useMemo(
+    () => [...rawAnchors].sort((a, b) => a.start_index - b.start_index),
+    [rawAnchors]
   );
 
   const parts: React.ReactNode[] = [];
@@ -55,11 +58,11 @@ export default function MessageItem({
 
   const handleBranch = async () => {
     if (!sel?.range) return;
-    const start = sel.range.startOffset;
-    const end = sel.range.endOffset;
 
-    const newId = await branch(threadId, msg.id, start, end);
-    router.push(`/t/${[...pathIds, newId].join("/")}`);
+    const { startAbs, endAbs } = getOffsets(spanRef.current, sel.range);
+    if (startAbs === -1) return;
+    const childId = await branch(threadId, msg.id, startAbs, endAbs);
+    router.push(`/t/${[...pathIds, childId].join("/")}`);
   };
 
   if (isUser) {

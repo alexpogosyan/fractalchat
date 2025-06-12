@@ -1,13 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@/components/Button";
 
 export default function Composer({
   onSend,
+  autoFocus = false,
 }: {
   onSend: (prompt: string) => void;
+  autoFocus?: boolean;
 }) {
   const [text, setText] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [autoFocus]);
 
   const send = () => {
     if (!text.trim()) return;
@@ -33,6 +42,7 @@ export default function Composer({
       className="flex gap-2 p-3 max-w-[80%] mx-auto"
     >
       <textarea
+        ref={textareaRef}
         value={text}
         placeholder="Type your prompt…"
         onChange={(e) => setText(e.target.value)}

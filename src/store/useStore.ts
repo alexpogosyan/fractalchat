@@ -18,6 +18,7 @@ export interface AppState {
 
   activeThreadId: string | null;
   openAnchorIds: Record<string, boolean>;
+  pendingResponses: Record<string, boolean>;
 
   hydrateBundle(bundle: ThreadBundle): void;
   hydrateRootThreads(threads: Thread[]): void;
@@ -42,6 +43,7 @@ export const useStore = create<AppState>()(
     anchors: {},
     activeThreadId: null,
     openAnchorIds: {},
+    pendingResponses: {},
 
     hydrateBundle(bundle) {
       const { thread, messages, anchors } = bundle;
@@ -111,6 +113,7 @@ export const useStore = create<AppState>()(
       const userMsg = await dbInsertMessage(threadId, "user", prompt);
       set((s) => {
         (s.messages[threadId] ??= []).push(userMsg);
+        s.pendingResponses[threadId] = true;
       });
 
       const history = buildContext(threadId, LLM_HISTORY_LENGTH);
@@ -131,11 +134,18 @@ export const useStore = create<AppState>()(
       const aiMsg = await dbInsertMessage(threadId, "assistant", aiContent);
       set((s) => {
         (s.messages[threadId] ??= []).push(aiMsg);
+        s.pendingResponses[threadId] = false;
       });
     },
 
     async branchFromSelection(parentThreadId, messageId, start, end) {
-      const child = await dbCreateThread(parentThreadId, null);
+      const state = get();
+      const parentMsg = (state.messages[parentThreadId] ?? []).find(
+        (m) => m.id === messageId
+      );
+      const rawExcerpt = parentMsg?.content?.slice(start, end).trim() ?? "";
+      const title = rawExcerpt.slice(0, 20) || null;
+      const child = await dbCreateThread(parentThreadId, title);
       const anchor = await dbInsertAnchor(messageId, child.id, start, end);
 
       set((s) => {
