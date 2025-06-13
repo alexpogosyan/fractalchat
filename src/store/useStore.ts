@@ -6,6 +6,7 @@ import {
   createThread as dbCreateThread,
   insertMessage as dbInsertMessage,
   insertAnchor as dbInsertAnchor,
+  deleteThread as dbDeleteThread,
 } from "@/lib/db/browser";
 import { buildContext } from "@/lib/llm/context";
 
@@ -34,6 +35,7 @@ export interface AppState {
     startIndex: number,
     endIndex: number
   ) => Promise<string>;
+  deleteThread: (threadId: string) => Promise<void>;
 }
 
 export const useStore = create<AppState>()(
@@ -156,6 +158,20 @@ export const useStore = create<AppState>()(
         s.activeThreadId = child.id;
       });
       return child.id;
+    },
+
+    deleteThread: async (threadId: string) => {
+      await dbDeleteThread(threadId);
+
+      set((s) => {
+        const { [threadId]: _removed, ...rest } = s.threads;
+        s.threads = rest;
+
+        delete s.messages[threadId];
+        delete s.anchors[threadId];
+
+        if (s.activeThreadId === threadId) s.activeThreadId = null;
+      });
     },
   }))
 );

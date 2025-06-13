@@ -29,3 +29,6 @@ export const insertAnchor = (
   startIndex: number,
   endIndex: number
 ) => coreInsertAnchor(supabase, messageId, threadId, startIndex, endIndex);
+
+export const deleteThread = (threadId: string) =>
+  supabase.from("threads").delete().eq("id", threadId);

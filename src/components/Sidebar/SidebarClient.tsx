@@ -5,6 +5,7 @@ import Link from "next/link";
 import Button from "@/components/Button";
 import { Thread } from "@/types";
 import { useRouter } from "next/navigation";
+import { Trash } from "lucide-react";
 
 interface SidebarClientProps {
   initial: Thread[];
@@ -19,6 +20,8 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
 
   const createThread = useStore((s) => s.createThread);
   const activeThreadId = useStore((s) => s.activeThreadId);
+
+  const deleteThread = useStore((s) => s.deleteThread);
 
   const activeRootId = useMemo(() => {
     if (!activeThreadId) return null;
@@ -59,15 +62,32 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
             const isActive = t.id === activeRootId;
 
             return (
-              <Link
+              <div
                 key={t.id}
-                href={`/t/${t.id}`}
-                className={`block p-3 rounded-lg transition-colors ${
-                  isActive ? "bg-gray-200 font-semibold" : "hover:bg-gray-50"
-                }`}
+                className={`flex items-center ${
+                  isActive ? "bg-gray-200" : "hover:bg-gray-50"
+                } p-3 rounded-lg`}
               >
-                <p className="text-sm truncate">{getThreadLabel(t.id, 25)}</p>
-              </Link>
+                <Link
+                  href={`/t/${t.id}`}
+                  className={`block p-3 rounded-lg transition-colors ${
+                    isActive && "font-semibold"
+                  }`}
+                >
+                  <p className="text-sm truncate">{getThreadLabel(t.id, 25)}</p>
+                </Link>
+
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    console.log("deleteThread", t.id);
+                    await deleteThread(t.id);
+                  }}
+                  className="text-black  transition"
+                >
+                  <Trash className="w-4 h-4" />
+                </button>
+              </div>
             );
           })
         )}

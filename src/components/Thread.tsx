@@ -48,7 +48,7 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
           {pending && (
             <li className="flex">
               <p className="bg-gray-100 text-gray-500 px-3 py-2 rounded-lg text-sm animate-ellipsis">
-                Thinking<span className="inline-block w-3 text-center">…</span>
+                Thinking...
               </p>
             </li>
           )}
