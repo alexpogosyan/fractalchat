@@ -80,7 +80,6 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
                 <button
                   onClick={async (e) => {
                     e.stopPropagation();
-                    console.log("deleteThread", t.id);
                     await deleteThread(t.id);
                   }}
                   className="text-black  transition"

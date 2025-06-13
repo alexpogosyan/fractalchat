@@ -164,8 +164,9 @@ export const useStore = create<AppState>()(
       await dbDeleteThread(threadId);
 
       set((s) => {
-        const { [threadId]: _removed, ...rest } = s.threads;
-        s.threads = rest;
+        s.threads = Object.fromEntries(
+          Object.entries(s.threads).filter(([id]) => id !== threadId)
+        );
 
         delete s.messages[threadId];
         delete s.anchors[threadId];
