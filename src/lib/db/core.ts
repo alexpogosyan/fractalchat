@@ -81,6 +81,19 @@ export async function coreInsertMessage(
   return data;
 }
 
+export async function coreUpdateMessage(
+  supabase: SupabaseClient,
+  messageId: string,
+  content: string
+) {
+  const { error } = await supabase
+    .from("messages")
+    .update({ content })
+    .eq("id", messageId);
+
+  if (error) throw error;
+}
+
 export async function coreInsertAnchor(
   supabase: SupabaseClient,
   messageId: string,

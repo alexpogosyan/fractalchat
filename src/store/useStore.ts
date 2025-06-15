@@ -6,6 +6,7 @@ import {
   createThread as dbCreateThread,
   insertMessage as dbInsertMessage,
   insertAnchor as dbInsertAnchor,
+  updateMessage as dbUpdateMessage,
   deleteThread as dbDeleteThread,
 } from "@/lib/db/browser";
 import { buildContext } from "@/lib/llm/context";
@@ -115,27 +116,59 @@ export const useStore = create<AppState>()(
       const userMsg = await dbInsertMessage(threadId, "user", prompt);
       set((s) => {
         (s.messages[threadId] ??= []).push(userMsg);
-        s.pendingResponses[threadId] = true;
+        s.pendingResponses[threadId] = true; // Show "Thinking…" indicator
       });
 
       const history = buildContext(threadId, LLM_HISTORY_LENGTH);
-
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, history }),
       });
 
-      if (!response.ok) {
+      if (!response.ok || !response.body) {
         throw new Error("Failed to get AI response");
       }
 
-      const { content: aiContent } = await response.json();
-      const aiMsg = await dbInsertMessage(threadId, "assistant", aiContent);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = "";
+      let gotFirstChunk = false;
+
+      const aiMsg = await dbInsertMessage(threadId, "assistant", "");
       set((s) => {
-        (s.messages[threadId] ??= []).push(aiMsg);
+        (s.messages[threadId] ??= []).push({ ...aiMsg });
+      });
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+
+        if (!gotFirstChunk && chunk.trim()) {
+          gotFirstChunk = true;
+          set((s) => {
+            s.pendingResponses[threadId] = false;
+          });
+        }
+
+        fullResponse += chunk;
+
+        set((s) => {
+          const msgs = s.messages[threadId];
+          if (msgs && msgs.length > 0) {
+            const lastMsg = msgs[msgs.length - 1];
+            if (lastMsg.sender === "assistant") {
+              lastMsg.content = fullResponse;
+            }
+          }
+        });
+      }
+
+      const saved = await dbUpdateMessage(aiMsg.id, fullResponse);
+
+      set((s) => {
         s.pendingResponses[threadId] = false;
       });
     },

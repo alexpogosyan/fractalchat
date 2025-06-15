@@ -28,6 +28,24 @@ create policy "messages owner insert"
     )
   );
 
+create policy "messages owner update"
+  on public.messages
+  for update
+  using (
+    thread_id in (
+      select id
+      from public.threads
+      where user_id = auth.uid()
+    )
+  )
+  with check (
+    thread_id in (
+      select id
+      from public.threads
+      where user_id = auth.uid()
+    )
+  );
+
 create policy "messages owner delete"
   on public.messages
   for delete

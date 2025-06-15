@@ -5,6 +5,7 @@ import {
   coreCreateThread,
   coreInsertMessage,
   coreInsertAnchor,
+  coreUpdateMessage,
 } from "@/lib/db/core";
 
 const supabase = getBrowserClient();
@@ -22,6 +23,9 @@ export const insertMessage = (
   sender: "user" | "assistant",
   content: string
 ) => coreInsertMessage(supabase, threadId, sender, content);
+
+export const updateMessage = (messageId: string, content: string) =>
+  coreUpdateMessage(supabase, messageId, content);
 
 export const insertAnchor = (
   messageId: string,

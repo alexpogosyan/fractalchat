@@ -1,18 +1,30 @@
-import { chatLLM } from "@/lib/llm/chat";
-import { NextRequest, NextResponse } from "next/server";
+import { chatLLMStream } from "@/lib/llm/chat";
+import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-  try {
-    const { prompt, history } = await request.json();
+  const { prompt, history } = await request.json();
 
-    const aiContent = await chatLLM("openai", prompt, history);
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const token of chatLLMStream("openai", prompt, history)) {
+          controller.enqueue(encoder.encode(token));
+        }
+      } catch (err) {
+        console.error("Stream error:", err);
+        controller.enqueue(encoder.encode("\n[Stream error occurred]"));
+      } finally {
+        controller.close();
+      }
+    },
+  });
 
-    return NextResponse.json({ content: aiContent });
-  } catch (error) {
-    console.error("Chat API error:", error);
-    return NextResponse.json(
-      { error: "Failed to process chat request" },
-      { status: 500 }
-    );
-  }
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
 }
