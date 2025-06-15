@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import type { Message, ThreadBundle } from "@/types";
 import MessageItem from "./MessageItem";
@@ -27,9 +27,15 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
 
   const isEmpty = liveMessages.length === 0;
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     hydrate(bundle);
   }, [bundle, hydrate]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [liveMessages.length]);
 
   return (
     <div className="flex flex-col h-full justify-between">
@@ -53,6 +59,7 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
             </li>
           )}
         </ul>
+        <div ref={bottomRef} />
       </div>
       <div>
         <Composer onSend={handleSend} autoFocus={isEmpty} />

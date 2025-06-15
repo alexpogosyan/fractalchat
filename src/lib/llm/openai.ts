@@ -7,7 +7,7 @@ export async function chatOpenAI(
   history: { role: "user" | "assistant"; content: string }[]
 ) {
   const { choices } = await client.chat.completions.create({
-    model: "gpt-4.1-mini",
+    model: "gpt-4o",
     messages: [
       { role: "system", content: "You are helpful assistant." },
       ...history,
