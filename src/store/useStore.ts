@@ -166,7 +166,7 @@ export const useStore = create<AppState>()(
         });
       }
 
-      const saved = await dbUpdateMessage(aiMsg.id, fullResponse);
+      await dbUpdateMessage(aiMsg.id, fullResponse);
 
       set((s) => {
         s.pendingResponses[threadId] = false;
