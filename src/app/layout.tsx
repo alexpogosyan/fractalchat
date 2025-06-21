@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FractalMap",
+  title: "FractalChat",
   description: "A new way to build knowledge with AI",
 };
 

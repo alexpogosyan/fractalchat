@@ -13,12 +13,12 @@ export default async function Header() {
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/logo.svg"
-              alt="FractalMap Logo"
+              alt="FractalChat Logo"
               width={32}
               height={32}
               className="w-8 h-8"
             />
-            <span className="text-xl font-bold text-gray-900">FractalMap</span>
+            <span className="text-xl font-bold text-gray-900">FractalChat</span>
           </Link>
 
           <div className="flex items-center space-x-4">
