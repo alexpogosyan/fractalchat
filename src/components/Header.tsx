@@ -12,7 +12,7 @@ export default async function Header() {
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               alt="FractalChat Logo"
               width={32}
               height={32}
