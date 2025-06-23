@@ -34,7 +34,7 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
   }, [bundle, hydrate]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: "instant" });
   }, [liveMessages.length]);
 
   return (
