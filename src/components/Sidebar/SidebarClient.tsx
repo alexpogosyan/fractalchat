@@ -48,7 +48,7 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
   }, [initial, hydrateRootThreads]);
 
   return (
-    <aside className="w-64 border-r border-gray-200 h-full overflow-y-auto bg-white">
+    <aside className="w-64 border-r border-gray-200 h-full overflow-y-auto bg-gray-50">
       <div className="p-4">
         <div className="flex justify-between mb-4">
           <Button size="sm" onClick={handleNew}>
@@ -64,17 +64,17 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
             return (
               <div
                 key={t.id}
-                className={`flex items-center ${
+                className={`group flex items-center gap-2 rounded-md px-3 py-2 ${
                   isActive ? "bg-gray-200" : "hover:bg-gray-50"
-                } p-3 rounded-lg`}
+                }`}
               >
                 <Link
                   href={`/t/${t.id}`}
-                  className={`block p-3 rounded-lg transition-colors ${
-                    isActive && "font-semibold"
-                  }`}
+                  className={`flex-1 min-w-0 truncate transition-colors `}
                 >
-                  <p className="text-sm truncate">{getThreadLabel(t.id, 25)}</p>
+                  <span className="text-sm truncate">
+                    {getThreadLabel(t.id)}
+                  </span>
                 </Link>
 
                 <button
@@ -82,7 +82,7 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
                     e.stopPropagation();
                     await deleteThread(t.id);
                   }}
-                  className="text-black  transition"
+                  className="cursor-pointer opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-600 transition-opacity p-1 rounded"
                 >
                   <Trash className="w-4 h-4" />
                 </button>

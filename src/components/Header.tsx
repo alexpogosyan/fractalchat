@@ -7,7 +7,7 @@ export default async function Header() {
   const { user } = await getUser();
 
   return (
-    <header className="w-full bg-white border-b border-gray-200">
+    <header className="fixed top-0 left-0 z-10 w-full bg-white border-b border-gray-200">
       <div className="px-4 py-2">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
@@ -18,7 +18,9 @@ export default async function Header() {
               height={32}
               className="w-8 h-8"
             />
-            <span className="text-xl font-bold text-gray-900">FractalChat</span>
+            <span className="text-xl font-medium text-gray-900">
+              FractalChat
+            </span>
           </Link>
 
           <div className="flex items-center space-x-4">

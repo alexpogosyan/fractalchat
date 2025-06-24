@@ -39,7 +39,7 @@ export default function Composer({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex gap-2 p-3 max-w-[80%] mx-auto"
+      className="flex gap-2 p-3 max-w-[750px] mx-auto"
     >
       <textarea
         ref={textareaRef}

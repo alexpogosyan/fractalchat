@@ -29,7 +29,7 @@ export interface AppState {
   toggleAnchor(anchorId: string): void;
   createThread(parentId: string | null): Promise<string>;
   sendMessage(threadId: string, prompt: string): Promise<void>;
-  getThreadLabel(threadId: string, maxLength?: number): string;
+  getThreadLabel(threadId: string): string;
   branchFromSelection: (
     parentThreadId: string,
     messageId: string,
@@ -93,30 +93,24 @@ export const useStore = create<AppState>()(
       return thread.id;
     },
 
-    getThreadLabel(threadId, maxLength = 20) {
+    getThreadLabel(threadId) {
       const state = get();
       const thread = state.threads[threadId];
       if (!thread) return "…";
 
       if (thread.title) {
-        return thread.title.length <= maxLength
-          ? thread.title
-          : thread.title.slice(0, maxLength - 1) + "…";
+        return thread.title;
       }
 
       const firstMsg = state.messages[threadId]?.[0]?.content ?? "";
-      if (!firstMsg) return "Untitled";
-
-      return firstMsg.length <= maxLength
-        ? firstMsg
-        : firstMsg.slice(0, maxLength - 1) + "…";
+      return firstMsg || "Untitled";
     },
 
     async sendMessage(threadId, prompt) {
       const userMsg = await dbInsertMessage(threadId, "user", prompt);
       set((s) => {
         (s.messages[threadId] ??= []).push(userMsg);
-        s.pendingResponses[threadId] = true; // Show "Thinking…" indicator
+        s.pendingResponses[threadId] = true;
       });
 
       const history = buildContext(threadId, LLM_HISTORY_LENGTH);

@@ -41,7 +41,7 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
     <div className="flex flex-col h-full justify-between">
       <div>
         <Breadcrumbs />
-        <ul className="p-4 space-y-3 mx-auto">
+        <ul className="p-4 space-y-3 mx-auto max-w-[750px]">
           {liveMessages.map((m) => (
             <MessageItem
               key={m.id}

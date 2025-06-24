@@ -67,7 +67,7 @@ export default function MessageItem({
 
   if (isUser) {
     return (
-      <li className="flex justify-end">
+      <li className="flex justify-end mb-8">
         <div className="bg-gray-200 text-gray-800 rounded-xl px-3 py-2 max-w-[60%]">
           <p className="whitespace-pre-wrap align-right">{parts}</p>
         </div>
@@ -76,7 +76,7 @@ export default function MessageItem({
   }
 
   return (
-    <li className="text-gray-800">
+    <li className="text-gray-800 mb-8">
       <p ref={spanRef} className="whitespace-pre-wrap">
         {parts}
       </p>

@@ -26,9 +26,9 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <Header />
-        <div className="flex h-[calc(100vh-4rem)]">
+        <div className="flex h-[calc(100vh-4rem)] mt-12">
           {user && <Sidebar />}
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 overflow-y-auto">{children}</main>
         </div>
       </body>
     </html>
