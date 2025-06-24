@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import type { Anchor } from "@/types";
+import type { Anchor } from "@/types/app";
 
 export default function AnchorSpan({
   anchor,

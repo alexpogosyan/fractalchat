@@ -1,5 +1,5 @@
 import { getRootThreads, getThreadBundle } from "@/lib/db/browser";
-import { Anchor, Message, Thread, ThreadBundle } from "@/types";
+import { Anchor, Message, Thread, ThreadBundle } from "@/types/app";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
@@ -33,8 +33,7 @@ export interface AppState {
   branchFromSelection: (
     parentThreadId: string,
     messageId: string,
-    startIndex: number,
-    endIndex: number
+    selector: { exact: string; prefix?: string; suffix?: string }
   ) => Promise<string>;
   deleteThread: (threadId: string) => Promise<void>;
 }
@@ -167,15 +166,11 @@ export const useStore = create<AppState>()(
       });
     },
 
-    async branchFromSelection(parentThreadId, messageId, start, end) {
-      const state = get();
-      const parentMsg = (state.messages[parentThreadId] ?? []).find(
-        (m) => m.id === messageId
-      );
-      const rawExcerpt = parentMsg?.content?.slice(start, end).trim() ?? "";
+    async branchFromSelection(parentThreadId, messageId, selector) {
+      const rawExcerpt = selector.exact.trim();
       const title = rawExcerpt.slice(0, 20) || null;
       const child = await dbCreateThread(parentThreadId, title);
-      const anchor = await dbInsertAnchor(messageId, child.id, start, end);
+      const anchor = await dbInsertAnchor(messageId, child.id, selector);
 
       set((s) => {
         s.threads[child.id] = child;

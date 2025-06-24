@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Anchor, Message, Thread, ThreadBundle } from "@/types";
+import type { Anchor, Message, Thread, ThreadBundle } from "@/types/app";
 
 export async function coreGetRootThreads(
   supabase: SupabaseClient
@@ -98,16 +98,14 @@ export async function coreInsertAnchor(
   supabase: SupabaseClient,
   messageId: string,
   threadId: string,
-  startIndex: number,
-  endIndex: number
+  selector: { exact: string; prefix?: string; suffix?: string }
 ) {
   const { data, error } = await supabase
     .from("anchors")
     .insert({
       message_id: messageId,
       thread_id: threadId,
-      start_index: startIndex,
-      end_index: endIndex,
+      selector,
     })
     .select()
     .single<Anchor>();

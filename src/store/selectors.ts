@@ -1,4 +1,4 @@
-import { Thread } from "@/types";
+import { Thread } from "@/types/app";
 import { useStore } from "./useStore";
 import { useShallow } from "zustand/shallow";
 

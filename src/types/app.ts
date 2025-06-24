@@ -14,12 +14,17 @@ export interface Message {
   created_at: string;
 }
 
+export type TextQuoteSelector = {
+  exact: string;
+  prefix?: string;
+  suffix?: string;
+};
+
 export interface Anchor {
   id: string;
   message_id: string;
   thread_id: string;
-  start_index: number;
-  end_index: number;
+  selector: TextQuoteSelector;
 }
 
 export interface ThreadBundle {

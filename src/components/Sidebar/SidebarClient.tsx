@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react";
 import { useStore } from "@/store/useStore";
 import Link from "next/link";
 import Button from "@/components/Button";
-import { Thread } from "@/types";
+import { Thread } from "@/types/app";
 import { useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
 

@@ -1,12 +1,12 @@
 import { useAnchorsForMessage } from "@/store/selectors";
-import type { Message } from "@/types";
+import type { Message, Anchor } from "@/types/app";
 import AnchorSpan from "./AnchorSpan";
 import { useMemo, useRef } from "react";
 import { useTextSelection } from "@/lib/hooks/useSelection";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
 import { BranchButton } from "./BranchButton";
-import { getOffsets } from "@/lib/getOffsets";
+import { rangeToSelector } from "@/lib/anchors";
 
 export default function MessageItem({
   msg,
@@ -18,20 +18,22 @@ export default function MessageItem({
   pathIds: string[];
 }) {
   const rawAnchors = useAnchorsForMessage(threadId, msg.id);
-  const anchors = useMemo(
-    () => [...rawAnchors].sort((a, b) => a.start_index - b.start_index),
-    [rawAnchors]
-  );
+  const anchors = useMemo(() => {
+    if (!msg.content) return rawAnchors;
+    const getIndex = (a: Anchor) => msg.content!.indexOf(a.selector.exact);
+    return [...rawAnchors].sort((a, b) => getIndex(a) - getIndex(b));
+  }, [rawAnchors, msg.content]);
 
   const parts: React.ReactNode[] = [];
   let cursor = 0;
 
   anchors.forEach((a) => {
-    if (a.start_index > cursor) {
-      parts.push(msg.content!.slice(cursor, a.start_index));
+    const idx = msg.content!.indexOf(a.selector.exact, cursor);
+    if (idx > cursor) {
+      parts.push(msg.content!.slice(cursor, idx));
     }
 
-    const anchorText = msg.content!.slice(a.start_index, a.end_index);
+    const anchorText = a.selector.exact;
 
     parts.push(
       <AnchorSpan
@@ -42,7 +44,7 @@ export default function MessageItem({
       />
     );
 
-    cursor = a.end_index;
+    cursor = idx + anchorText.length;
   });
 
   if (cursor < msg.content!.length) {
@@ -59,9 +61,8 @@ export default function MessageItem({
   const handleBranch = async () => {
     if (!sel?.range) return;
 
-    const { startAbs, endAbs } = getOffsets(spanRef.current, sel.range);
-    if (startAbs === -1) return;
-    const childId = await branch(threadId, msg.id, startAbs, endAbs);
+    const selector = rangeToSelector(spanRef.current!, sel.range);
+    const childId = await branch(threadId, msg.id, selector);
     router.push(`/t/${[...pathIds, childId].join("/")}`);
   };
 

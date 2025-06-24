@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
-import type { Message, ThreadBundle } from "@/types";
+import type { Message, ThreadBundle } from "@/types/app";
 import MessageItem from "./MessageItem";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "./Breadcrumbs";

@@ -30,9 +30,8 @@ export const updateMessage = (messageId: string, content: string) =>
 export const insertAnchor = (
   messageId: string,
   threadId: string,
-  startIndex: number,
-  endIndex: number
-) => coreInsertAnchor(supabase, messageId, threadId, startIndex, endIndex);
+  selector: { exact: string; prefix?: string; suffix?: string }
+) => coreInsertAnchor(supabase, messageId, threadId, selector);
 
 export const deleteThread = (threadId: string) =>
   supabase.from("threads").delete().eq("id", threadId);
