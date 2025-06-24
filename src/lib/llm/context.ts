@@ -25,7 +25,7 @@ export function buildContext(threadId: string, limit = 20) {
       (m) => m.id === anch.message_id
     );
     if (parentMsg?.content) {
-      const excerpt = parentMsg.content.slice(anch.start_index, anch.end_index);
+      const excerpt = anch.selector?.exact ?? "";
 
       ctx.unshift({
         role: "assistant",

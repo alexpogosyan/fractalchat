@@ -33,10 +33,6 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
     hydrate(bundle);
   }, [bundle, hydrate]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "instant" });
-  }, [liveMessages.length]);
-
   return (
     <div className="flex flex-col h-full justify-between">
       <div>
