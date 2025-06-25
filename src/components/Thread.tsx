@@ -13,6 +13,7 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
   const pending = useStore(
     (s) => s.pendingResponses[bundle.thread.id] ?? false
   );
+  const prefetchAncestors = useStore((s) => s.prefetchAncestors);
 
   const EMPTY: Message[] = [];
 
@@ -31,11 +32,22 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
 
   useEffect(() => {
     hydrate(bundle);
-  }, [bundle, hydrate]);
+    prefetchAncestors(bundle.thread.id);
+  }, [bundle, hydrate, prefetchAncestors]);
+
+  // Auto-scroll when user sends a new message
+  useEffect(() => {
+    if (liveMessages.length === 0) return;
+    const last = liveMessages[liveMessages.length - 1];
+    if (last.sender === "user") {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [liveMessages]);
 
   return (
-    <div className="flex flex-col h-full justify-between">
-      <div>
+    <div className="flex flex-col h-full">
+      {" "}
+      <div className="flex-1 overflow-y-auto">
         <Breadcrumbs />
         <ul className="p-4 space-y-3 mx-auto max-w-[750px]">
           {liveMessages.map((m) => (
@@ -57,7 +69,7 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
         </ul>
         <div ref={bottomRef} />
       </div>
-      <div>
+      <div className="sticky bottom-0 bg-white ">
         <Composer onSend={handleSend} autoFocus={isEmpty} />
       </div>
     </div>

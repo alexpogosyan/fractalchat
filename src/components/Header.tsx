@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getUser, signout } from "@/app/auth/actions";
+import { getUser } from "@/app/auth/actions";
 import { Button } from "@/components/Button";
+import AvatarMenu from "@/components/AvatarMenu";
 
 export default async function Header() {
   const { user } = await getUser();
@@ -25,14 +26,7 @@ export default async function Header() {
 
           <div className="flex items-center space-x-4">
             {user ? (
-              <>
-                <span className="text-sm text-gray-600">{user.email}</span>
-                <form action={signout}>
-                  <Button type="submit" variant="outline" size="sm">
-                    Sign out
-                  </Button>
-                </form>
-              </>
+              <AvatarMenu email={user.email ?? ""} />
             ) : (
               <>
                 <Button href="/auth/signin" variant="ghost" size="sm">

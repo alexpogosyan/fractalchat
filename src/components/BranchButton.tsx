@@ -9,14 +9,14 @@ export function BranchButton({
     <button
       style={{
         position: "absolute",
-        top: rect.bottom + window.scrollY + 4,
+        top: rect.top + window.scrollY - 40,
         left: rect.left + window.scrollX,
         zIndex: 1000,
       }}
-      className="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow"
+      className="cursor-pointer bg-blue-600 text-white text-lg font-bold px-2 py-1 rounded shadow w-10 h-10"
       onClick={onClick}
     >
-      Branch
+      +
     </button>
   );
 }

@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react";
 import { useStore } from "@/store/useStore";
 import Link from "next/link";
 import Button from "@/components/Button";
-import { Thread } from "@/types/app";
+import { Thread, Anchor } from "@/types/app";
 import { useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
 
@@ -22,6 +22,9 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
   const activeThreadId = useStore((s) => s.activeThreadId);
 
   const deleteThread = useStore((s) => s.deleteThread);
+  const prefetchDesc = useStore((s) => s.prefetchDescendants);
+
+  const anchors = useStore((s) => s.anchors);
 
   const activeRootId = useMemo(() => {
     if (!activeThreadId) return null;
@@ -47,10 +50,105 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
     hydrateRootThreads(initial);
   }, [initial, hydrateRootThreads]);
 
+  // Prefetch entire subtree under active root
+  useEffect(() => {
+    if (activeRootId) prefetchDesc(activeRootId);
+  }, [activeRootId, prefetchDesc]);
+
+  interface TreeNode {
+    id: string;
+    preview?: string; // first 20 chars from anchor exact, used before thread loads
+    children: TreeNode[];
+  }
+
+  const buildTree = (parentId: string): TreeNode => {
+    const childAnchors: Anchor[] = (() => {
+      const list = anchors[parentId] ?? [];
+      const parentMsgs = threads[parentId]
+        ? useStore.getState().messages[parentId] ?? []
+        : [];
+
+      const positionFor = (a: Anchor) => {
+        const msg = parentMsgs.find((m) => m.id === a.message_id);
+        if (!msg?.content) return 1e9;
+        const idx = msg.content.indexOf(a.selector.exact.trim());
+        return idx === -1 ? 1e9 : idx;
+      };
+
+      return [...list].sort((a, b) => positionFor(a) - positionFor(b));
+    })();
+    return {
+      id: parentId,
+      children: childAnchors.map((a) => ({
+        id: a.thread_id,
+        preview: a.selector.exact.trim().slice(0, 20),
+        children: buildTree(a.thread_id).children,
+      })),
+    };
+  };
+
+  const ThreadNode = ({
+    node,
+    depth,
+    path,
+  }: {
+    node: TreeNode;
+    depth: number;
+    path: string[];
+  }) => {
+    if (depth === 0) {
+      // root rendered separately, skip
+      return (
+        <>
+          {node.children.map((c) => (
+            <ThreadNode
+              key={c.id}
+              node={c}
+              depth={depth + 1}
+              path={[...path, c.id]}
+            />
+          ))}
+        </>
+      );
+    }
+
+    let label: string;
+    if (threads[node.id]) {
+      label = getThreadLabel(node.id);
+    } else {
+      label = node.preview || "…";
+    }
+    const isActive = activeThreadId === node.id;
+
+    return (
+      <div className="ml-2">
+        <Link
+          href={`/t/${path.join("/")}`}
+          className={`block truncate text-sm py-1 ${
+            isActive
+              ? "font-semibold text-gray-800"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
+          style={{ paddingLeft: depth * 12 }}
+        >
+          {label}
+        </Link>
+        {node.children.map((c) => (
+          <ThreadNode
+            key={c.id}
+            node={c}
+            depth={depth + 1}
+            path={[...path, c.id]}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <aside className="w-64 border-r border-gray-200 h-full overflow-y-auto bg-gray-50">
-      <div className="p-4">
-        <div className="flex justify-between mb-4">
+      <div className="mx-2">
+        <div className="flex justify-between my-2">
           <Button size="sm" onClick={handleNew}>
             New
           </Button>
@@ -64,28 +162,38 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
             return (
               <div
                 key={t.id}
-                className={`group flex items-center gap-2 rounded-md px-3 py-2 ${
+                className={`group flex flex-col gap-1 rounded-md px-3 py-2 ${
                   isActive ? "bg-gray-200" : "hover:bg-gray-50"
                 }`}
               >
-                <Link
-                  href={`/t/${t.id}`}
-                  className={`flex-1 min-w-0 truncate transition-colors `}
-                >
-                  <span className="text-sm truncate">
-                    {getThreadLabel(t.id)}
-                  </span>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/t/${t.id}`}
+                    className="flex-1 min-w-0 truncate transition-colors"
+                  >
+                    <span
+                      className={`text-sm truncate ${
+                        isActive ? "font-semibold" : ""
+                      }`}
+                    >
+                      {getThreadLabel(t.id)}
+                    </span>
+                  </Link>
 
-                <button
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await deleteThread(t.id);
-                  }}
-                  className="cursor-pointer opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-600 transition-opacity p-1 rounded"
-                >
-                  <Trash className="w-4 h-4" />
-                </button>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await deleteThread(t.id);
+                    }}
+                    className="cursor-pointer opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-600 transition-opacity p-1 rounded"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {isActive && anchors[t.id] && anchors[t.id].length > 0 && (
+                  <ThreadNode node={buildTree(t.id)} depth={0} path={[t.id]} />
+                )}
               </div>
             );
           })

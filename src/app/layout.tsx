@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { getUser } from "./auth/actions";
 import Sidebar from "@/components/Sidebar";
+import { headers } from "next/headers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,12 +23,17 @@ export default async function RootLayout({
 }>) {
   const { user } = await getUser(); // server-side auth check
 
+  const headersList = await headers();
+  const pathname = headersList.get("x-current-path") ?? "";
+  const hideSidebar =
+    !user || pathname.startsWith("/auth") || pathname.startsWith("/error");
+
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <Header />
         <div className="flex h-[calc(100vh-4rem)] mt-12">
-          {user && <Sidebar />}
+          {!hideSidebar && <Sidebar />}
           <main className="flex-1 overflow-y-auto">{children}</main>
         </div>
       </body>

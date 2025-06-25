@@ -29,6 +29,7 @@ export default function SignUpPage() {
                 name="email"
                 type="email"
                 placeholder="Enter your email"
+                autoFocus
                 required
                 className="w-full px-3 py-2 border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               />

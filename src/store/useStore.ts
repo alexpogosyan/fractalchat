@@ -37,6 +37,8 @@ export interface AppState {
     selector: { exact: string; prefix?: string; suffix?: string }
   ) => Promise<string>;
   deleteThread: (threadId: string) => Promise<void>;
+  prefetchDescendants: (rootId: string) => Promise<void>;
+  prefetchAncestors: (threadId: string) => Promise<void>;
 }
 
 export const useStore = create<AppState>()(
@@ -205,6 +207,56 @@ export const useStore = create<AppState>()(
 
         if (s.activeThreadId === threadId) s.activeThreadId = null;
       });
+    },
+
+    prefetchDescendants: async (rootId: string) => {
+      const visited = new Set<string>();
+
+      const dfs = async (id: string) => {
+        if (visited.has(id)) return;
+        visited.add(id);
+
+        if (!get().anchors[id]) {
+          const bundle = await getThreadBundle(id);
+          set((s) => {
+            s.threads[id] = bundle.thread;
+            s.messages[id] = bundle.messages;
+            s.anchors[id] = bundle.anchors;
+          });
+        }
+
+        const childAnchors = get().anchors[id] ?? [];
+        for (const a of childAnchors) {
+          await dfs(a.thread_id);
+        }
+      };
+
+      await dfs(rootId);
+    },
+
+    prefetchAncestors: async (threadId: string) => {
+      const visited = new Set<string>();
+
+      let curId: string | null = threadId;
+      while (curId) {
+        const curThread: Thread | undefined = get().threads[curId];
+        if (!curThread) {
+          // Need to fetch bundle for curId to get parent relation
+          const bundle = await getThreadBundle(curId);
+          const id = curId; // non-null id snapshot
+          set((s) => {
+            s.threads[id] = bundle.thread;
+            s.messages[id] = bundle.messages;
+            s.anchors[id] = bundle.anchors;
+          });
+          visited.add(curId);
+          curId = bundle.thread.parent_id;
+        } else {
+          if (visited.has(curId)) break;
+          visited.add(curId);
+          curId = curThread.parent_id;
+        }
+      }
     },
   }))
 );

@@ -57,7 +57,7 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
           const wrapper = document.createElement("span");
           wrapper.dataset.anchorId = a.id;
           wrapper.className =
-            "bg-yellow-200 rounded px-1 cursor-pointer select-none";
+            "bg-yellow-100 rounded px-1 cursor-pointer select-none";
           wrapper.onclick = () =>
             router.push(`/t/${[...pathIds, a.thread_id].join("/")}`);
           r.surroundContents(wrapper);

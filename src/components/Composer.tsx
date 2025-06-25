@@ -37,23 +37,28 @@ export default function Composer({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex gap-2 p-3 max-w-[750px] mx-auto"
-    >
-      <textarea
-        ref={textareaRef}
-        value={text}
-        placeholder="Type your prompt…"
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        rows={3}
-        className="flex-1 border border-gray-200 rounded-xl p-2 text-sm"
-      />
+    <form onSubmit={handleSubmit} className="p-4 max-w-[750px] mx-auto">
+      <div className="relative mb-2">
+        <textarea
+          ref={textareaRef}
+          value={text}
+          placeholder="Type your prompt…"
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={3}
+          className="w-full border border-gray-200 rounded-xl p-3 pr-16 text-sm"
+        />
 
-      <Button type="submit" variant="solid" size="md" disabled={!text.trim()}>
-        Send
-      </Button>
+        <Button
+          type="submit"
+          variant="solid"
+          size="sm"
+          disabled={!text.trim()}
+          className="absolute bottom-3 right-3 h-8 px-4 text-sm"
+        >
+          Send
+        </Button>
+      </div>
     </form>
   );
 }
