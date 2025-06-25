@@ -8,6 +8,7 @@ import {
   insertAnchor as dbInsertAnchor,
   updateMessage as dbUpdateMessage,
   deleteThread as dbDeleteThread,
+  updateThreadTitle as dbUpdateThreadTitle,
 } from "@/lib/db/browser";
 import { buildContext } from "@/lib/llm/context";
 
@@ -111,6 +112,15 @@ export const useStore = create<AppState>()(
         (s.messages[threadId] ??= []).push(userMsg);
         s.pendingResponses[threadId] = true;
       });
+
+      const curThread = get().threads[threadId];
+      if (!curThread.title) {
+        const title = prompt.trim().slice(0, 50);
+        await dbUpdateThreadTitle(threadId, title);
+        set((s) => {
+          s.threads[threadId].title = title;
+        });
+      }
 
       const history = buildContext(threadId, LLM_HISTORY_LENGTH);
       const response = await fetch("/api/chat", {

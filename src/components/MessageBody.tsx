@@ -48,20 +48,46 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
 
     // apply current anchors
     anchors.forEach((a) => {
+      if (!a.selector.exact.trim()) return; // ignore empty/whitespace anchors
       try {
         const range = selectorToRange(root, a.selector);
         if (!range) return;
 
-        const wrapper = document.createElement("span");
-        wrapper.dataset.anchorId = a.id;
-        wrapper.className =
-          "bg-yellow-200 rounded px-1 cursor-pointer select-none";
-        wrapper.onclick = () =>
-          router.push(`/t/${[...pathIds, a.thread_id].join("/")}`);
+        const applyWrapper = (r: Range) => {
+          const wrapper = document.createElement("span");
+          wrapper.dataset.anchorId = a.id;
+          wrapper.className =
+            "bg-yellow-200 rounded px-1 cursor-pointer select-none";
+          wrapper.onclick = () =>
+            router.push(`/t/${[...pathIds, a.thread_id].join("/")}`);
+          r.surroundContents(wrapper);
+        };
 
-        range.surroundContents(wrapper);
+        try {
+          applyWrapper(range);
+        } catch {
+          // Range crosses multiple nodes — wrap each intersecting text node individually
+          const walker = document.createTreeWalker(
+            range.commonAncestorContainer,
+            NodeFilter.SHOW_TEXT
+          );
+          const textNodes: Node[] = [];
+          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+            if (range.intersectsNode(n)) textNodes.push(n);
+          }
+          textNodes.forEach((n) => {
+            const sub = document.createRange();
+            const isStart = n === range.startContainer;
+            const isEnd = n === range.endContainer;
+            const start = isStart ? range.startOffset : 0;
+            const end = isEnd ? range.endOffset : n.textContent?.length ?? 0;
+            sub.setStart(n, start);
+            sub.setEnd(n, end);
+            if (sub.toString().trim()) applyWrapper(sub);
+          });
+        }
       } catch {
-        /* overlapping ranges or stale selector */
+        /* selector not found */
       }
     });
   }, [content, anchors, pathIds, router, rootRef]);

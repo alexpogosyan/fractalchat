@@ -35,3 +35,6 @@ export const insertAnchor = (
 
 export const deleteThread = (threadId: string) =>
   supabase.from("threads").delete().eq("id", threadId);
+
+export const updateThreadTitle = (threadId: string, title: string) =>
+  supabase.from("threads").update({ title }).eq("id", threadId);

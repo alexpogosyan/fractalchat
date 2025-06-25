@@ -30,6 +30,7 @@ export default function MessageItem({
     if (!sel?.range) return;
 
     const selector = rangeToSelector(bodyRef.current!, sel.range);
+    if (!selector.exact.trim()) return;
     const childId = await branch(threadId, msg.id, selector);
     router.push(`/t/${[...pathIds, childId].join("/")}`);
   };
