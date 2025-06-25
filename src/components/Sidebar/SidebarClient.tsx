@@ -1,11 +1,11 @@
 "use client";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/store/useStore";
 import Link from "next/link";
 import Button from "@/components/Button";
 import { Thread, Anchor } from "@/types/app";
 import { useRouter } from "next/navigation";
-import { Trash } from "lucide-react";
+import { Trash, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 interface SidebarClientProps {
   initial: Thread[];
@@ -54,6 +54,15 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
   useEffect(() => {
     if (activeRootId) prefetchDesc(activeRootId);
   }, [activeRootId, prefetchDesc]);
+
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Determine default collapsed based on screen width on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCollapsed(window.innerWidth < 768); // md breakpoint
+    }
+  }, []);
 
   interface TreeNode {
     id: string;
@@ -146,59 +155,91 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
   };
 
   return (
-    <aside className="w-64 border-r border-gray-200 h-full overflow-y-auto bg-gray-50">
-      <div className="mx-2">
-        <div className="flex justify-between my-2">
-          <Button size="sm" onClick={handleNew}>
-            New
-          </Button>
-        </div>
-        {rootThreads.length === 0 ? (
-          <p className="py-4 text-sm text-gray-500">No threads yet</p>
+    <>
+      <aside
+        className={`bg-gray-50 border-r border-gray-200 overflow-y-auto transition-all duration-300
+          ${collapsed ? "w-12 flex-none" : "w-64"}
+          ${collapsed ? "static" : "absolute md:static"}
+          ${collapsed ? "" : "top-12 left-0 h-[calc(100vh-56px)] z-20"}`}
+      >
+        {/* Narrow strip always visible when collapsed */}
+        {collapsed ? (
+          <div className="flex flex-col items-center mt-2 space-y-4">
+            <button
+              onClick={() => setCollapsed(false)}
+              className="p-1 rounded hover:bg-gray-100"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <button
+              onClick={handleNew}
+              className="p-1 rounded hover:bg-gray-100"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
         ) : (
-          rootThreads.map((t) => {
-            const isActive = t.id === activeRootId;
-
-            return (
-              <div
-                key={t.id}
-                className={`group flex flex-col gap-1 rounded-md px-3 py-2 ${
-                  isActive ? "bg-gray-200" : "hover:bg-gray-50"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/t/${t.id}`}
-                    className="flex-1 min-w-0 truncate transition-colors"
+          <div className="p-2 relative">
+            <button
+              onClick={() => setCollapsed(true)}
+              className="absolute top-2 right-2 p-1 rounded hover:bg-gray-100"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="flex justify-between mb-4">
+              <Button size="sm" onClick={handleNew}>
+                New
+              </Button>
+            </div>
+            {rootThreads.length === 0 ? (
+              <p className="py-4 text-sm text-gray-500">No threads yet</p>
+            ) : (
+              rootThreads.map((t) => {
+                const isActive = t.id === activeRootId;
+                return (
+                  <div
+                    key={t.id}
+                    className={`group flex flex-col gap-1 rounded-md px-3 py-2 ${
+                      isActive ? "bg-gray-200" : "hover:bg-gray-50"
+                    }`}
                   >
-                    <span
-                      className={`text-sm truncate ${
-                        isActive ? "font-semibold" : ""
-                      }`}
-                    >
-                      {getThreadLabel(t.id)}
-                    </span>
-                  </Link>
-
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      await deleteThread(t.id);
-                    }}
-                    className="cursor-pointer opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-600 transition-opacity p-1 rounded"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {isActive && anchors[t.id] && anchors[t.id].length > 0 && (
-                  <ThreadNode node={buildTree(t.id)} depth={0} path={[t.id]} />
-                )}
-              </div>
-            );
-          })
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/t/${t.id}`}
+                        className="flex-1 min-w-0 truncate transition-colors"
+                      >
+                        <span
+                          className={`text-sm truncate ${
+                            isActive ? "font-semibold" : ""
+                          }`}
+                        >
+                          {getThreadLabel(t.id)}
+                        </span>
+                      </Link>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await deleteThread(t.id);
+                        }}
+                        className="cursor-pointer opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-600 transition-opacity p-1 rounded"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {isActive && anchors[t.id] && anchors[t.id].length > 0 && (
+                      <ThreadNode
+                        node={buildTree(t.id)}
+                        depth={0}
+                        path={[t.id]}
+                      />
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
         )}
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

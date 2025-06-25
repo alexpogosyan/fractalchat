@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import type { Message, ThreadBundle } from "@/types/app";
-import MessageItem from "./MessageItem";
+import MessageItem from "@/components/Message/MessageItem";
 import { usePathname } from "next/navigation";
 import Breadcrumbs from "./Breadcrumbs";
 import Composer from "./Composer";

@@ -1,3 +1,4 @@
+"use client";
 import React, { useLayoutEffect, useRef, forwardRef } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -5,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { selectorToRange } from "@/lib/anchors";
 import type { Anchor } from "@/types/app";
 import { useRouter } from "next/navigation";
+import mdComponents from "./markdownComponents";
 
 interface Props {
   content: string;
@@ -19,7 +21,6 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
   const innerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // merge refs so both forwardRef and internal logic share same node
   const setRefs = (node: HTMLDivElement | null) => {
     innerRef.current = node;
     if (ref) {
@@ -36,7 +37,6 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
     const root = rootRef.current;
     if (!root) return;
 
-    // remove previous highlights
     root.querySelectorAll("span[data-anchor-id]").forEach((el) => {
       const span = el as HTMLSpanElement;
       const parent = span.parentNode;
@@ -46,9 +46,8 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
       parent.normalize();
     });
 
-    // apply current anchors
     anchors.forEach((a) => {
-      if (!a.selector.exact.trim()) return; // ignore empty/whitespace anchors
+      if (!a.selector.exact.trim()) return;
       try {
         const range = selectorToRange(root, a.selector);
         if (!range) return;
@@ -57,7 +56,7 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
           const wrapper = document.createElement("span");
           wrapper.dataset.anchorId = a.id;
           wrapper.className =
-            "bg-yellow-100 rounded px-1 cursor-pointer select-none";
+            "bg-yellow-200 rounded px-1 cursor-pointer select-none";
           wrapper.onclick = () =>
             router.push(`/t/${[...pathIds, a.thread_id].join("/")}`);
           r.surroundContents(wrapper);
@@ -66,7 +65,6 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
         try {
           applyWrapper(range);
         } catch {
-          // Range crosses multiple nodes — wrap each intersecting text node individually
           const walker = document.createTreeWalker(
             range.commonAncestorContainer,
             NodeFilter.SHOW_TEXT
@@ -94,7 +92,11 @@ const MessageBody = forwardRef<HTMLDivElement, Props>(function MessageBody(
 
   return (
     <div ref={setRefs} suppressHydrationWarning>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        components={mdComponents}
+      >
         {content}
       </ReactMarkdown>
     </div>

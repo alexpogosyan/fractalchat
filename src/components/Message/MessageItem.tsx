@@ -1,10 +1,11 @@
+"use client";
 import { useAnchorsForMessage } from "@/store/selectors";
 import type { Message } from "@/types/app";
 import { useRef } from "react";
 import { useTextSelection } from "@/lib/hooks/useSelection";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
-import { BranchButton } from "./BranchButton";
+import { BranchButton } from "../BranchButton";
 import { rangeToSelector } from "@/lib/anchors";
 import MessageBody from "./MessageBody";
 
