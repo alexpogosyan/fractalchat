@@ -4,7 +4,7 @@ import { useStore } from "@/store/useStore";
 import Link from "next/link";
 import Button from "@/components/Button";
 import { Thread, Anchor } from "@/types/app";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Trash, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 interface SidebarClientProps {
@@ -25,6 +25,9 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
   const prefetchDesc = useStore((s) => s.prefetchDescendants);
 
   const anchors = useStore((s) => s.anchors);
+
+  const pathname = usePathname();
+  const setActiveThreadId = useStore((s) => s.setActiveThreadId);
 
   const activeRootId = useMemo(() => {
     if (!activeThreadId) return null;
@@ -63,6 +66,13 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
       setCollapsed(window.innerWidth < 768); // md breakpoint
     }
   }, []);
+
+  // Clear activeThreadId when not on /t route
+  useEffect(() => {
+    if (!pathname.startsWith("/t/")) {
+      setActiveThreadId(null);
+    }
+  }, [pathname, setActiveThreadId]);
 
   interface TreeNode {
     id: string;
@@ -179,7 +189,7 @@ export default function SidebarClient({ initial }: SidebarClientProps) {
             </button>
           </div>
         ) : (
-          <div className="p-2 relative">
+          <div className="p-2 pl-4 relative">
             <button
               onClick={() => setCollapsed(true)}
               className="absolute top-2 right-2 p-1 rounded hover:bg-gray-100"

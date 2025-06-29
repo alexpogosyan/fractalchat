@@ -39,6 +39,7 @@ export interface AppState {
   deleteThread: (threadId: string) => Promise<void>;
   prefetchDescendants: (rootId: string) => Promise<void>;
   prefetchAncestors: (threadId: string) => Promise<void>;
+  setActiveThreadId: (id: string | null) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -257,6 +258,12 @@ export const useStore = create<AppState>()(
           curId = curThread.parent_id;
         }
       }
+    },
+
+    setActiveThreadId: (id) => {
+      set((s) => {
+        s.activeThreadId = id;
+      });
     },
   }))
 );

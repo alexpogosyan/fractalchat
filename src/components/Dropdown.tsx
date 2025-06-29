@@ -22,11 +22,9 @@ export default function Dropdown({ trigger, children }: DropdownProps) {
 
   return (
     <div className="relative" ref={ref}>
-      <button className="cursor-pointer" onClick={() => setOpen((o) => !o)}>
-        {trigger}
-      </button>
+      <button onClick={() => setOpen((o) => !o)}>{trigger}</button>
       {open && (
-        <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded shadow-lg z-30">
+        <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-30">
           {children}
         </div>
       )}
