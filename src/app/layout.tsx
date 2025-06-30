@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FractalChat",
+  title: "Fractalchat",
   description: "A new way to build knowledge with AI",
 };
 

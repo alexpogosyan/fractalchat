@@ -6,12 +6,12 @@ export default function LandingPage() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-800 px-4">
       <Image
         src="/logo.png"
-        alt="FractalChat Logo"
+        alt="Fractalchat Logo"
         width={120}
         height={120}
         className="mb-6"
       />
-      <h1 className="text-5xl font-bold mb-4">FractalChat</h1>
+      <h1 className="text-5xl font-bold mb-4">Fractalchat</h1>
       <p className="text-xl text-center max-w-xl mb-8">
         A new way to build knowledge with AI
       </p>

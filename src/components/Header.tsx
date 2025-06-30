@@ -14,13 +14,13 @@ export default async function Header() {
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/logo.png"
-              alt="FractalChat Logo"
+              alt="Fractalchat Logo"
               width={32}
               height={32}
               className="w-8 h-8"
             />
             <span className="text-xl font-medium text-gray-900">
-              FractalChat
+              Fractalchat
             </span>
           </Link>
 
