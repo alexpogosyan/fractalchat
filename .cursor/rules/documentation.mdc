@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Fractalchat Documentation Rules
+
+When working on fractalchat, always consider the project documentation to ensure alignment with the product vision and requirements.
+
+## Key Documentation Files
+
+- **`docs/prd.md`** - complete PRD with overview, phases, features, personas
+- **`docs/tech-stack.md`** - tech stack and architecture 

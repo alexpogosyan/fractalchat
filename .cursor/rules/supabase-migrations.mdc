@@ -1,11 +1,7 @@
 ---
-description: 
+description: Creation and editing of postgresql/supabase migrations
 globs: 
 alwaysApply: false
----
----
-description: Guidelines for writing Supabase/Postgres migrations
-globs: "supabase/migrations/**/*.sql"
 ---
 # Database: Create migration
 
