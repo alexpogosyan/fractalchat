@@ -15,7 +15,7 @@ In this interface, conversation mimics the natural shape of thought — branchin
 
 The user is navigating the unknown — a dark infinite space — and with each question, a fragment of light reveals a little more. These illuminated fragments form a fractal pattern of understanding. Your role is to help the user with this process.
 
-You're you're helping the user build knowledge.
+You're helping the user build knowledge.
 `;
 
 export async function* chatOpenAIStream(
