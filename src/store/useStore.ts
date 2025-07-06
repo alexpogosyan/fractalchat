@@ -146,37 +146,53 @@ export const useStore = create<AppState>()(
         (s.messages[threadId] ??= []).push({ ...aiMsg });
       });
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+      // Ensure we always persist whatever portion of the AI response we have, even
+      // if the streaming request errors or is aborted when the user navigates
+      // away.  We wrap the reading loop in try/catch/finally so the DB update and
+      // pending state clearing are guaranteed to run.
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
 
-        const chunk = decoder.decode(value);
+          const chunk = decoder.decode(value);
 
-        if (!gotFirstChunk && chunk.trim()) {
-          gotFirstChunk = true;
+          if (!gotFirstChunk && chunk.trim()) {
+            gotFirstChunk = true;
+            set((s) => {
+              s.pendingResponses[threadId] = false;
+            });
+          }
+
+          fullResponse += chunk;
+
           set((s) => {
-            s.pendingResponses[threadId] = false;
+            const msgs = s.messages[threadId];
+            if (msgs && msgs.length > 0) {
+              const lastMsg = msgs[msgs.length - 1];
+              if (lastMsg.sender === "assistant") {
+                lastMsg.content = fullResponse;
+              }
+            }
           });
         }
+      } catch (err) {
+        console.error("Stream error while reading AI response:", err);
+      } finally {
+        // Persist whatever content we have (may be empty if the stream failed
+        // early). Wrap in its own try/catch so one failure doesn't mask the
+        // other.
+        try {
+          await dbUpdateMessage(aiMsg.id, fullResponse);
+        } catch (persistErr) {
+          console.error("Failed to persist assistant message:", persistErr);
+        }
 
-        fullResponse += chunk;
-
+        // Ensure UI no longer shows the loader for this thread.
         set((s) => {
-          const msgs = s.messages[threadId];
-          if (msgs && msgs.length > 0) {
-            const lastMsg = msgs[msgs.length - 1];
-            if (lastMsg.sender === "assistant") {
-              lastMsg.content = fullResponse;
-            }
-          }
+          s.pendingResponses[threadId] = false;
         });
       }
-
-      await dbUpdateMessage(aiMsg.id, fullResponse);
-
-      set((s) => {
-        s.pendingResponses[threadId] = false;
-      });
     },
 
     async branchFromSelection(parentThreadId, messageId, selector) {
