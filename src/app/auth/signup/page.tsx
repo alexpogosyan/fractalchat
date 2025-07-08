@@ -4,8 +4,8 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/components/Card";
-import { Button } from "@/components/Button";
+} from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { signup } from "../actions";
 
 export default function SignUpPage() {

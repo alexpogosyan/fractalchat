@@ -1,7 +1,7 @@
 "use client";
 import { signout } from "@/app/auth/actions";
-import Avatar from "./Avatar";
-import Dropdown from "./Dropdown";
+import Avatar from "./ui/Avatar";
+import Dropdown from "./ui/Dropdown";
 
 export default function AvatarMenu({ email }: { email: string }) {
   const initial = (email?.[0] ?? "?").toUpperCase();

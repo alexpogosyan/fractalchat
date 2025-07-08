@@ -4,8 +4,8 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/components/Card";
-import { Button } from "@/components/Button";
+} from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { signin } from "../actions";
 
 export default function SignInPage() {

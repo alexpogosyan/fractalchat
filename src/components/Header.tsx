@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getUser } from "@/app/auth/actions";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import AvatarMenu from "@/components/AvatarMenu";
 
 export default async function Header() {

@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/store/useStore";
 import Link from "next/link";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 import { Thread, Anchor } from "@/types/app";
 import { useRouter, usePathname } from "next/navigation";
 import { Trash, ChevronLeft, ChevronRight, Plus } from "lucide-react";

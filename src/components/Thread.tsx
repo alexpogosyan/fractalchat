@@ -4,7 +4,7 @@ import { useStore } from "@/store/useStore";
 import type { Message, ThreadBundle } from "@/types/app";
 import MessageItem from "@/components/Message/MessageItem";
 import { usePathname } from "next/navigation";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs from "./ui/Breadcrumbs";
 import Composer from "./Composer";
 
 export default function Thread({ bundle }: { bundle: ThreadBundle }) {
