@@ -5,23 +5,20 @@ export function BranchButton({
   rect: DOMRect;
   onClick: () => void;
 }) {
-  // On mobile Safari, the system copy/find menu appears above the selection.
-  // To prevent our button from being overlapped, we position it below the
-  // selection on touch-only devices (no hover, coarse pointer).
-  const isTouchOnly =
-    typeof window !== "undefined" &&
-    window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  // Always position the button below the selection. This avoids being hidden
+  // by the native copy / lookup menu that browsers (especially iOS Safari)
+  // show above the selected text.
+  const top = rect.bottom + window.scrollY + 10; // 10 px gap under selection
 
-  const top = isTouchOnly
-    ? rect.bottom + window.scrollY + 10 // below selection
-    : rect.top + window.scrollY - 40; // above selection for desktop
+  // Position the button aligned with the left edge of the selection.
+  const left = rect.left + window.scrollX;
 
   return (
     <button
       style={{
         position: "absolute",
         top,
-        left: rect.left + window.scrollX,
+        left,
         zIndex: 1000,
       }}
       className="cursor-pointer bg-blue-600 text-white text-lg font-bold px-2 py-1 rounded shadow w-10 h-10"
