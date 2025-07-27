@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@fractalchat/ui";
 
 export default function LandingPage() {
   return (

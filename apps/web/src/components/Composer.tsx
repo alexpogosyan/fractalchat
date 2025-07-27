@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Button from "@/components/ui/Button";
+import { Button } from "@fractalchat/ui";
 
 export default function Composer({
   onSend,
