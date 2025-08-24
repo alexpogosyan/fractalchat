@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { getUser } from "./auth/actions";
 import Sidebar from "@/components/Sidebar";
 import { headers } from "next/headers";
+import App from "@/components/app";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,11 +32,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        <Header />
-        <div className="flex h-[calc(100vh-4rem)] mt-12">
-          {!hideSidebar && <Sidebar />}
-          <main className="flex-1 overflow-y-auto">{children}</main>
-        </div>
+        <App />
       </body>
     </html>
   );

@@ -1,11 +1,11 @@
 import Image from "next/image";
-import { Button } from "@fractalchat/ui";
+import { Button, LinkButton } from "@/components/ui/button";
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-800 px-4">
       <Image
-        src="/logo.png"
+        src="/logo.svg"
         alt="Fractalchat Logo"
         width={120}
         height={120}
@@ -18,9 +18,9 @@ export default function LandingPage() {
 
       {/* Call-to-action button */}
       <div className="flex justify-center">
-        <Button href="/auth/signup" variant="solid" size="lg">
+        <LinkButton href="/auth/signup" size="lg">
           Get Started
-        </Button>
+        </LinkButton>
       </div>
     </main>
   );

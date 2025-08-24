@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getUser } from "@/app/auth/actions";
-import { Button } from "@fractalchat/ui";
+import { LinkButton } from "@/components/ui/button";
 import AvatarMenu from "@/components/AvatarMenu";
 
 export default async function Header() {
@@ -13,7 +13,7 @@ export default async function Header() {
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="Fractalchat Logo"
               width={32}
               height={32}
@@ -29,12 +29,12 @@ export default async function Header() {
               <AvatarMenu email={user.email ?? ""} />
             ) : (
               <>
-                <Button href="/auth/signin" variant="ghost" size="sm">
+                <LinkButton href="/auth/signin" variant="ghost" size="sm">
                   Sign in
-                </Button>
-                <Button href="/auth/signup" variant="solid" size="sm">
+                </LinkButton>
+                <LinkButton href="/auth/signup" size="sm">
                   Sign up
-                </Button>
+                </LinkButton>
               </>
             )}
           </div>

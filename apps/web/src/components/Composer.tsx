@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@fractalchat/ui";
+import { Button } from "@/components/ui/button";
 
 export default function Composer({
   onSend,
@@ -51,7 +51,6 @@ export default function Composer({
 
         <Button
           type="submit"
-          variant="solid"
           size="sm"
           disabled={!text.trim()}
           className="absolute bottom-3 right-3 h-8 px-4 text-sm"

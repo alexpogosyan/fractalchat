@@ -5,7 +5,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/Card";
-import { Button } from "@fractalchat/ui";
+import { Button } from "@/components/ui/button";
 import { signin } from "../actions";
 
 export default function SignInPage() {
