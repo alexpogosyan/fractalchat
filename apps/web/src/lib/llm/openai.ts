@@ -23,13 +23,12 @@ export async function* chatOpenAIStream(
   history: { role: "user" | "assistant"; content: string }[]
 ) {
   const stream = await client.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-5",
     messages: [
       { role: "system", content: systemPrompt },
       ...history,
       { role: "user", content: prompt },
     ],
-    temperature: 0.7,
     stream: true,
   });
 
