@@ -1,12 +1,12 @@
 "use client";
-import { useAnchorsForMessage } from "@/store/selectors";
-import type { Message } from "@/types/app";
-import { useRef } from "react";
-import { useTextSelection } from "@/lib/hooks/useSelection";
-import { useRouter } from "next/navigation";
-import { useStore } from "@/store/useStore";
-import { BranchButton } from "../ui/BranchButton";
 import { rangeToSelector } from "@/lib/anchors";
+import { useTextSelection } from "@/lib/hooks/useSelection";
+import { useAnchorsForMessage } from "@/store/selectors";
+import { useStore } from "@/store/useStore";
+import type { Message } from "@fractalchat/types";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import { BranchButton } from "../BranchButton";
 import MessageBody from "./MessageBody";
 
 export default function MessageItem({

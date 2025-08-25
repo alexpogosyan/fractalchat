@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { useStore } from "@/store/useStore";
-import type { Message, ThreadBundle } from "@/types/app";
 import MessageItem from "@/components/Message/MessageItem";
+import { useStore } from "@/store/useStore";
+import type { Message, ThreadBundle } from "@fractalchat/types";
 import { usePathname } from "next/navigation";
-import Breadcrumbs from "./ui/Breadcrumbs";
+import { useEffect, useRef } from "react";
 import Composer from "./Composer";
 
 export default function Thread({ bundle }: { bundle: ThreadBundle }) {
@@ -48,7 +47,6 @@ export default function Thread({ bundle }: { bundle: ThreadBundle }) {
     <div className="flex flex-col h-full">
       {" "}
       <div className="flex-1 overflow-y-auto">
-        <Breadcrumbs />
         <ul className="p-4 space-y-3 mx-auto max-w-[750px]">
           {liveMessages.map((m) => (
             <MessageItem

@@ -1,7 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { usePathname } from "next/navigation";
-import SidebarWithData from "@/components/app-sidebar/data";
+import { AppSidebar } from "@/components/app-sidebar/app-sidebar";
+import { getBreadcrumbPath, getThreadTitle } from "@/lib/breadcrumbs";
+import type { ThreadTreeNode } from "@fractalchat/types";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,16 +22,18 @@ import {
 
 interface AppLayoutProps {
   children: React.ReactNode;
+  threadTree: ThreadTreeNode[];
   threadId?: string | null;
 }
 
-export default function AppLayout({ children, threadId }: AppLayoutProps) {
+export default function AppLayout({ children, threadTree, threadId }: AppLayoutProps) {
   const pathname = usePathname();
   const currentThreadId = threadId || (pathname.startsWith('/t/') ? pathname.split('/')[2] : null);
+  const breadcrumbPath = getBreadcrumbPath(threadTree, currentThreadId);
 
   return (
     <SidebarProvider>
-      <SidebarWithData />
+      <AppSidebar threadTree={threadTree} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
@@ -36,23 +41,31 @@ export default function AppLayout({ children, threadId }: AppLayoutProps) {
             orientation="vertical"
             className="mr-2 data-[orientation=vertical]:h-4"
           />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">
-                  Fractalchat
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {currentThreadId && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Thread {currentThreadId.slice(0, 8)}</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </>
-              )}
-            </BreadcrumbList>
-          </Breadcrumb>
+          {breadcrumbPath.length > 0 && (
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbPath.map((thread, index) => {
+                  const isLast = index === breadcrumbPath.length - 1;
+                  const title = getThreadTitle(thread);
+                  
+                  return (
+                    <React.Fragment key={thread.id}>
+                      <BreadcrumbItem>
+                        {isLast ? (
+                          <BreadcrumbPage>{title}</BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink href={`/t/${thread.id}`}>
+                            {title}
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
+                      {!isLast && <BreadcrumbSeparator />}
+                    </React.Fragment>
+                  );
+                })}
+              </BreadcrumbList>
+            </Breadcrumb>
+          )}
         </header>
         <div className="flex flex-1 flex-col">
           {children}

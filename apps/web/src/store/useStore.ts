@@ -1,16 +1,17 @@
-import { getRootThreads, getThreadBundle } from "@/lib/db/browser";
-import { Anchor, Message, Thread, ThreadBundle } from "@/types/app";
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
 import {
   createThread as dbCreateThread,
-  insertMessage as dbInsertMessage,
-  insertAnchor as dbInsertAnchor,
-  updateMessage as dbUpdateMessage,
   deleteThread as dbDeleteThread,
+  insertAnchor as dbInsertAnchor,
+  insertMessage as dbInsertMessage,
+  updateMessage as dbUpdateMessage,
   updateThreadTitle as dbUpdateThreadTitle,
+  getRootThreads,
+  getThreadBundle,
 } from "@/lib/db/browser";
 import { buildContext } from "@/lib/llm/context";
+import { Anchor, Message, Thread, ThreadBundle } from "@fractalchat/types";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 
 const LLM_HISTORY_LENGTH = 10;
 

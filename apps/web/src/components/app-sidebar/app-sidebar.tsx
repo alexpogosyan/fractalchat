@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
+import { useThreadUIStore } from "@/store/useThreadUIStore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,7 @@ import {
   SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import type { ThreadTreeNode } from "@/types/app";
+import type { ThreadTreeNode } from "@fractalchat/types";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   threadTree: ThreadTreeNode[];
@@ -36,6 +37,15 @@ export function AppSidebar({ threadTree, ...props }: AppSidebarProps) {
   const currentThreadId = pathname.startsWith("/t/")
     ? pathname.split("/")[2]
     : null;
+  
+  const { expandAncestorPath } = useThreadUIStore();
+  
+  // Auto-expand ancestor path when currentThreadId changes
+  React.useEffect(() => {
+    if (currentThreadId && threadTree.length > 0) {
+      expandAncestorPath(threadTree, currentThreadId);
+    }
+  }, [currentThreadId, threadTree, expandAncestorPath]);
 
   return (
     <Sidebar {...props}>
@@ -91,10 +101,15 @@ function ThreadTreeItem({
   thread: ThreadTreeNode;
   currentThreadId: string | null;
 }) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const { isExpanded, toggleExpanded } = useThreadUIStore();
+  const expanded = isExpanded(thread.id);
   const hasChildren = thread.children.length > 0;
   const threadTitle = thread.title || `Thread ${thread.id.slice(0, 8)}`;
   const isActive = thread.id === currentThreadId;
+
+  const handleToggle = () => {
+    toggleExpanded(thread.id);
+  };
 
   if (!hasChildren) {
     return (
@@ -110,14 +125,13 @@ function ThreadTreeItem({
 
   return (
     <SidebarMenuItem>
-      <Collapsible
-        open={isOpen}
-        onOpenChange={setIsOpen}
-      >
+      <Collapsible open={expanded} onOpenChange={handleToggle}>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton asChild isActive={isActive}>
             <Link href={`/t/${thread.id}`}>
-              <ChevronRight className={`transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+              <ChevronRight
+                className={`transition-transform ${expanded ? "rotate-90" : ""}`}
+              />
               <span className="truncate">{threadTitle}</span>
             </Link>
           </SidebarMenuButton>

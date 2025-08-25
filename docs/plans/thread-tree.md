@@ -107,6 +107,102 @@ interface ThreadTreeNode extends Thread {
 
 ---
 
+## 🔄 NEXT PHASE: Thread Expansion State Management
+
+### Problem Analysis
+**Current Issue**: Thread expansion state is managed by individual `useState` in each `ThreadTreeItem`. When navigation occurs (URL change), components unmount/remount and all expansion state is lost, causing all threads to collapse.
+
+**Root Cause**: Component-level state doesn't persist across navigation/page refreshes.
+
+### Existing Store Analysis
+- **Main Store**: `/store/useStore.ts` - Large store with thread data, messages, anchors, chat logic
+- **Selectors**: `/store/selectors.ts` - Reusable store selectors  
+- **Architecture**: Uses Zustand with Immer middleware for immutable updates
+
+### Solution: Separate UI State Store
+
+#### New Store: `/store/useThreadUIStore.ts`
+**Focused on UI state only:**
+```typescript
+interface ThreadUIState {
+  expandedThreads: Set<string>;
+  toggleExpanded: (threadId: string) => void;
+  setExpanded: (threadId: string, expanded: boolean) => void;
+  isExpanded: (threadId: string) => boolean;
+  expandAncestorPath: (threadTree: ThreadTreeNode[], threadId: string) => void;
+}
+```
+
+#### Key Features:
+1. **Persistent Expansion**: Thread expansion survives navigation
+2. **Auto-Expand Ancestry**: Current thread's parents stay expanded
+3. **Manual Control**: Users can expand/collapse threads manually
+4. **Set-Based Storage**: Efficient storage of expanded thread IDs
+5. **Modular**: Separate from main store for clean separation of concerns
+
+### Implementation Plan
+
+#### 1. Create Thread UI Store
+**New File: `/store/useThreadUIStore.ts`**
+- Lightweight store focused only on UI state
+- Use `Set<string>` for efficient expanded thread tracking
+- Methods for toggle, set, and bulk operations
+- Auto-expansion utilities
+
+#### 2. Update ThreadTreeItem Component
+**Modify: `/components/app-sidebar/app-sidebar.tsx`**
+- Remove local `useState` for `isOpen`
+- Use `useThreadUIStore` for expansion state
+- Call `toggleExpanded` on user clicks
+- Read `isExpanded` for render state
+
+#### 3. Auto-Expand Current Thread Path
+**Integration with AppLayout/AppSidebar:**
+- When `currentThreadId` changes, auto-expand ancestry path
+- Use `expandAncestorPath` utility to ensure parents are visible
+- Preserve user's manual expansion choices
+
+#### 4. Store Integration Pattern
+```typescript
+// In ThreadTreeItem
+const { isExpanded, toggleExpanded } = useThreadUIStore();
+const expanded = isExpanded(thread.id);
+
+const handleToggle = () => {
+  toggleExpanded(thread.id);
+};
+
+// In AppSidebar (when currentThreadId changes)
+useEffect(() => {
+  if (currentThreadId && threadTree.length > 0) {
+    expandAncestorPath(threadTree, currentThreadId);
+  }
+}, [currentThreadId, threadTree]);
+```
+
+### Files to Create/Modify
+1. **CREATE**: `/store/useThreadUIStore.ts` - New UI-focused store
+2. **MODIFY**: `/components/app-sidebar/app-sidebar.tsx` - Use new store
+3. **MODIFY**: `/store/selectors.ts` - Add UI store selectors if needed
+4. **TEST**: Verify expansion persists across navigation
+
+### Benefits
+- ✅ **Persistent State**: Expansion survives page navigation
+- ✅ **Auto-Expand**: Current thread's parents always visible
+- ✅ **User Control**: Manual expand/collapse choices remembered
+- ✅ **Performance**: Set-based storage, efficient lookups
+- ✅ **Separation**: UI state separate from business logic
+- ✅ **Modularity**: Small, focused store vs monolithic
+
+### Success Criteria
+- ✅ Thread expansion state persists across navigation
+- ✅ Current thread's ancestry path auto-expands
+- ✅ User's manual expansion choices are remembered
+- ✅ No performance regressions
+- ✅ Clean separation between UI state and data state
+
+---
+
 ## 🔄 NEXT PHASE: Active Thread Highlighting + New Thread Button
 
 ### Research Summary
