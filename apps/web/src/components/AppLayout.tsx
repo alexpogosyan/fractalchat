@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import SidebarWithData from "@/components/app-sidebar/data";
-import ThreadDisplay from "@/components/ThreadDisplay";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,9 +17,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-export default function Page() {
+interface AppLayoutProps {
+  children: React.ReactNode;
+  threadId?: string | null;
+}
+
+export default function AppLayout({ children, threadId }: AppLayoutProps) {
   const pathname = usePathname();
-  const currentThreadId = pathname.startsWith('/t/') ? pathname.split('/')[2] : null;
+  const currentThreadId = threadId || (pathname.startsWith('/t/') ? pathname.split('/')[2] : null);
 
   return (
     <SidebarProvider>
@@ -50,7 +54,9 @@ export default function Page() {
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <ThreadDisplay threadId={currentThreadId} />
+        <div className="flex flex-1 flex-col">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

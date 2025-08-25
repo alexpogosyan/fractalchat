@@ -1,15 +1,42 @@
+"use client";
+
+import { ChevronRight, Plus } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import Image from "next/image";
+import type { ThreadTreeNode } from "@/types/app";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  threadTree: ThreadTreeNode[];
+}
+
+export function AppSidebar({ threadTree, ...props }: AppSidebarProps) {
+  const pathname = usePathname();
+  const currentThreadId = pathname.startsWith("/t/")
+    ? pathname.split("/")[2]
+    : null;
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -26,8 +53,87 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </Link>
         </div>
       </SidebarHeader>
-      <SidebarContent></SidebarContent>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Conversations</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="p-2">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {}}
+              >
+                <Plus className="h-4 w-4" />
+                New Thread
+              </Button>
+            </div>
+            <SidebarMenu>
+              {threadTree.map((thread) => (
+                <ThreadTreeItem
+                  key={thread.id}
+                  thread={thread}
+                  currentThreadId={currentThreadId}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function ThreadTreeItem({
+  thread,
+  currentThreadId,
+}: {
+  thread: ThreadTreeNode;
+  currentThreadId: string | null;
+}) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const hasChildren = thread.children.length > 0;
+  const threadTitle = thread.title || `Thread ${thread.id.slice(0, 8)}`;
+  const isActive = thread.id === currentThreadId;
+
+  if (!hasChildren) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild className="pl-8" isActive={isActive}>
+          <Link href={`/t/${thread.id}`}>
+            <span className="truncate">{threadTitle}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <SidebarMenuItem>
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton asChild isActive={isActive}>
+            <Link href={`/t/${thread.id}`}>
+              <ChevronRight className={`transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+              <span className="truncate">{threadTitle}</span>
+            </Link>
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub className="mr-0 pr-0">
+            {thread.children.map((childThread) => (
+              <ThreadTreeItem
+                key={childThread.id}
+                thread={childThread}
+                currentThreadId={currentThreadId}
+              />
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
+    </SidebarMenuItem>
   );
 }

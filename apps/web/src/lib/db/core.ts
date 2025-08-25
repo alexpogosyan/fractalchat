@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Anchor, Message, Thread, ThreadBundle } from "@/types/app";
+import type { Anchor, Message, Thread, ThreadBundle, ThreadTreeNode } from "@/types/app";
 
 export async function coreGetRootThreads(
   supabase: SupabaseClient
@@ -112,4 +112,69 @@ export async function coreInsertAnchor(
 
   if (error) throw error;
   return data;
+}
+
+export async function coreGetThreadTree(
+  supabase: SupabaseClient
+): Promise<ThreadTreeNode[]> {
+  // Get all threads
+  const { data: threads, error } = await supabase
+    .from("threads")
+    .select(`
+      id,
+      user_id,
+      parent_id,
+      title,
+      created_at,
+      messages (id)
+    `)
+    .order("created_at");
+
+  if (error) throw error;
+  if (!threads) return [];
+
+  // Build thread tree structure
+  const threadMap = new Map<string, ThreadTreeNode>();
+  const rootThreads: ThreadTreeNode[] = [];
+
+  // First pass: create all thread nodes
+  threads.forEach((thread) => {
+    const threadNode: ThreadTreeNode = {
+      id: thread.id,
+      user_id: thread.user_id,
+      parent_id: thread.parent_id,
+      title: thread.title,
+      created_at: thread.created_at,
+      children: [],
+      messageCount: thread.messages?.length || 0,
+      lastActivity: thread.created_at,
+    };
+    threadMap.set(thread.id, threadNode);
+  });
+
+  // Second pass: build tree hierarchy
+  threadMap.forEach((thread) => {
+    if (thread.parent_id) {
+      const parent = threadMap.get(thread.parent_id);
+      if (parent) {
+        parent.children.push(thread);
+        // Update parent's last activity if child is more recent
+        if (thread.lastActivity && thread.lastActivity > (parent.lastActivity || '')) {
+          parent.lastActivity = thread.lastActivity;
+        }
+      }
+    } else {
+      rootThreads.push(thread);
+    }
+  });
+
+  // Sort children by creation date
+  const sortChildren = (nodes: ThreadTreeNode[]) => {
+    nodes.sort((a, b) => a.created_at.localeCompare(b.created_at));
+    nodes.forEach((node) => sortChildren(node.children));
+  };
+  
+  sortChildren(rootThreads);
+  
+  return rootThreads;
 }
