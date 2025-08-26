@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import type { Anchor } from "@/types/app";
+import type { Anchor } from "@fractalchat/types";
 
 export default function AnchorSpan({
   anchor,

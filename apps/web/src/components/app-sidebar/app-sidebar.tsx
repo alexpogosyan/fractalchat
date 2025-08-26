@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { useThreadUIStore } from "@/store/useThreadUIStore";
+import { useStore } from "@/store/useStore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +20,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -34,18 +35,29 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ threadTree, ...props }: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const currentThreadId = pathname.startsWith("/t/")
     ? pathname.split("/")[2]
     : null;
-  
+
   const { expandAncestorPath } = useThreadUIStore();
-  
+  const createThread = useStore((s) => s.createThread);
+
   // Auto-expand ancestor path when currentThreadId changes
   React.useEffect(() => {
     if (currentThreadId && threadTree.length > 0) {
       expandAncestorPath(threadTree, currentThreadId);
     }
   }, [currentThreadId, threadTree, expandAncestorPath]);
+
+  const handleNewThread = async () => {
+    try {
+      const newThreadId = await createThread(null); // null = root thread
+      router.push(`/t/${newThreadId}`);
+    } catch (error) {
+      console.error("Failed to create new thread:", error);
+    }
+  };
 
   return (
     <Sidebar {...props}>
@@ -65,13 +77,12 @@ export function AppSidebar({ threadTree, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Conversations</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="p-2">
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => {}}
+                onClick={handleNewThread}
               >
                 <Plus className="h-4 w-4" />
                 New Thread
@@ -104,7 +115,7 @@ function ThreadTreeItem({
   const { isExpanded, toggleExpanded } = useThreadUIStore();
   const expanded = isExpanded(thread.id);
   const hasChildren = thread.children.length > 0;
-  const threadTitle = thread.title || `Thread ${thread.id.slice(0, 8)}`;
+  const threadTitle = thread.title || "New Thread";
   const isActive = thread.id === currentThreadId;
 
   const handleToggle = () => {
@@ -130,7 +141,9 @@ function ThreadTreeItem({
           <SidebarMenuButton asChild isActive={isActive}>
             <Link href={`/t/${thread.id}`}>
               <ChevronRight
-                className={`transition-transform ${expanded ? "rotate-90" : ""}`}
+                className={`transition-transform ${
+                  expanded ? "rotate-90" : ""
+                }`}
               />
               <span className="truncate">{threadTitle}</span>
             </Link>

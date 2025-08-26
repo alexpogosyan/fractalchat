@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { selectorToRange } from "@/lib/anchors";
-import type { Anchor } from "@/types/app";
+import type { Anchor } from "@fractalchat/types";
 import { useRouter } from "next/navigation";
 import mdComponents from "./markdownComponents";
 

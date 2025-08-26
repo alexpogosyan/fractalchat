@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Anchor, Message, Thread, ThreadBundle, ThreadTreeNode } from "@/types/app";
+import type {
+  Anchor,
+  Message,
+  Thread,
+  ThreadBundle,
+  ThreadTreeNode,
+} from "@fractalchat/types";
 
 export async function coreGetRootThreads(
   supabase: SupabaseClient
@@ -120,14 +126,16 @@ export async function coreGetThreadTree(
   // Get all threads
   const { data: threads, error } = await supabase
     .from("threads")
-    .select(`
+    .select(
+      `
       id,
       user_id,
       parent_id,
       title,
       created_at,
       messages (id)
-    `)
+    `
+    )
     .order("created_at");
 
   if (error) throw error;
@@ -159,7 +167,10 @@ export async function coreGetThreadTree(
       if (parent) {
         parent.children.push(thread);
         // Update parent's last activity if child is more recent
-        if (thread.lastActivity && thread.lastActivity > (parent.lastActivity || '')) {
+        if (
+          thread.lastActivity &&
+          thread.lastActivity > (parent.lastActivity || "")
+        ) {
           parent.lastActivity = thread.lastActivity;
         }
       }
@@ -173,8 +184,8 @@ export async function coreGetThreadTree(
     nodes.sort((a, b) => a.created_at.localeCompare(b.created_at));
     nodes.forEach((node) => sortChildren(node.children));
   };
-  
+
   sortChildren(rootThreads);
-  
+
   return rootThreads;
 }

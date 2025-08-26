@@ -54,3 +54,33 @@ export async function signout() {
   await supabase.auth.signOut();
   redirect("/");
 }
+
+export async function signInAnonymously() {
+  console.log("🚀 Starting anonymous sign-in...");
+
+  const supabase = await getServerClient();
+  console.log("✅ Supabase client created");
+
+  console.log("📡 Calling supabase.auth.signInAnonymously()...");
+  const { data, error } = await supabase.auth.signInAnonymously();
+
+  console.log("📊 Response:", {
+    user: data?.user?.id,
+    session: data?.session?.access_token ? "present" : "missing",
+    error: error ? { message: error.message, status: error.status } : null,
+  });
+
+  if (error) {
+    console.error("❌ Anonymous sign-in failed:", error);
+    const errorParams = new URLSearchParams({
+      message: error.message,
+      code: error.status?.toString() || "unknown",
+      context: "anonymous_signin",
+    });
+    redirect(`/error?${errorParams.toString()}`);
+  }
+
+  console.log("✅ Anonymous sign-in successful! Redirecting...");
+  revalidatePath("/", "layout");
+  redirect("/");
+}

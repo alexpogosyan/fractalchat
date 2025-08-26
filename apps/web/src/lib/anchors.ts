@@ -1,5 +1,5 @@
 import * as textQuote from "dom-anchor-text-quote";
-import type { TextQuoteSelector } from "@/types/app";
+import type { TextQuoteSelector } from "@fractalchat/types";
 
 export function rangeToSelector(
   root: HTMLElement,

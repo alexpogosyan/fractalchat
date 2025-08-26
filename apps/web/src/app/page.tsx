@@ -10,7 +10,7 @@ export default async function HomePage() {
     const threadTree = await getThreadTree();
     
     return (
-      <AppLayout threadTree={threadTree}>
+      <AppLayout threadTree={threadTree} userEmail={user.email || ""}>
         <div className="flex flex-1 items-center justify-center p-6">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-muted-foreground mb-2">

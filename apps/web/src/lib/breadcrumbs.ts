@@ -57,5 +57,5 @@ export function getBreadcrumbPath(
  * Gets display title for a thread with fallback
  */
 export function getThreadTitle(thread: ThreadTreeNode): string {
-  return thread.title || `Thread ${thread.id.slice(0, 8)}`;
+  return thread.title || "New Thread";
 }

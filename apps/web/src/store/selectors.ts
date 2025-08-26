@@ -1,4 +1,4 @@
-import { Thread } from "@/types/app";
+import type { Thread } from "@fractalchat/types";
 import { useStore } from "./useStore";
 import { useShallow } from "zustand/shallow";
 
