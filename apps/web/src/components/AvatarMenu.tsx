@@ -1,6 +1,6 @@
 "use client";
 import { signout } from "@/app/auth/actions";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar-with-fallback";
 import Dropdown from "./ui/Dropdown";
 
 export default function AvatarMenu({ email }: { email: string }) {
