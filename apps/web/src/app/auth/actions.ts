@@ -33,10 +33,21 @@ export async function signup(formData: FormData) {
     password: formData.get("password") as string,
   };
 
-  const { error } = await supabase.auth.signUp(data);
+  const { data: authData, error } = await supabase.auth.signUp(data);
 
   if (error) {
     redirect("/error");
+  }
+
+  // Create welcome thread for new user (only if signup was successful and user exists)
+  if (authData?.user && !error) {
+    try {
+      const { createWelcomeThread } = await import("@/lib/onboarding");
+      await createWelcomeThread(supabase);
+    } catch (onboardingError) {
+      console.error("Failed to create welcome thread:", onboardingError);
+      // Don't block signup if welcome thread creation fails
+    }
   }
 
   revalidatePath("/", "layout");
@@ -78,6 +89,17 @@ export async function signInAnonymously() {
       context: "anonymous_signin",
     });
     redirect(`/error?${errorParams.toString()}`);
+  }
+
+  // Create welcome thread for new anonymous user
+  if (data?.user && !error) {
+    try {
+      const { createWelcomeThread } = await import("@/lib/onboarding");
+      await createWelcomeThread(supabase);
+    } catch (onboardingError) {
+      console.error("Failed to create welcome thread:", onboardingError);
+      // Don't block signin if welcome thread creation fails
+    }
   }
 
   console.log("✅ Anonymous sign-in successful! Redirecting...");

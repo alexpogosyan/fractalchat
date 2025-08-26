@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar/app-sidebar";
 import { getBreadcrumbPath, getThreadTitle } from "@/lib/breadcrumbs";
 import AvatarMenu from "@/components/AvatarMenu";
+import { useStore } from "@/store/useStore";
 import type { ThreadTreeNode } from "@fractalchat/types";
 import {
   Breadcrumb,
@@ -23,19 +24,32 @@ import {
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  threadTree: ThreadTreeNode[];
+  threadTree: ThreadTreeNode[]; // Server-side initial data
   threadId?: string | null;
   userEmail?: string;
 }
 
-export default function AppLayout({ children, threadTree, threadId, userEmail }: AppLayoutProps) {
+export default function AppLayout({ children, threadTree: initialThreadTree, threadId, userEmail }: AppLayoutProps) {
   const pathname = usePathname();
-  const currentThreadId = threadId || (pathname.startsWith('/t/') ? pathname.split('/')[2] : null);
-  const breadcrumbPath = getBreadcrumbPath(threadTree, currentThreadId);
+  const currentThreadId = threadId || (pathname.startsWith('/t/') ? pathname.split('/').slice(2).at(-1) : null);
+  
+  const threadTree = useStore(s => s.threadTree);
+  const setThreadTree = useStore(s => s.setThreadTree);
+  
+  // Initialize store tree from server data
+  React.useEffect(() => {
+    if (initialThreadTree.length > 0 && threadTree.length === 0) {
+      setThreadTree(initialThreadTree);
+    }
+  }, [initialThreadTree, threadTree.length, setThreadTree]);
+  
+  // Use store tree or fallback to server tree
+  const activeThreadTree = threadTree.length > 0 ? threadTree : initialThreadTree;
+  const breadcrumbPath = getBreadcrumbPath(activeThreadTree, currentThreadId);
 
   return (
     <SidebarProvider>
-      <AppSidebar threadTree={threadTree} />
+      <AppSidebar threadTree={activeThreadTree} />
       <SidebarInset>
         <header className="bg-background sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <div className="flex items-center gap-2 flex-1">

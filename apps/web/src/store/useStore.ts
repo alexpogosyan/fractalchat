@@ -9,16 +9,36 @@ import {
   getThreadBundle,
 } from "@/lib/db/browser";
 import { buildContext } from "@/lib/llm/context";
-import { Anchor, Message, Thread, ThreadBundle } from "@fractalchat/types";
+import {
+  Anchor,
+  Message,
+  Thread,
+  ThreadBundle,
+  ThreadTreeNode,
+} from "@fractalchat/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 const LLM_HISTORY_LENGTH = 10;
 
+// Helper function for removing threads from tree
+const removeThreadFromTreeRecursive = (
+  tree: ThreadTreeNode[],
+  threadId: string
+): ThreadTreeNode[] => {
+  return tree
+    .filter((thread) => thread.id !== threadId)
+    .map((thread) => ({
+      ...thread,
+      children: removeThreadFromTreeRecursive(thread.children, threadId),
+    }));
+};
+
 export interface AppState {
   threads: Record<string, Thread>;
   messages: Record<string, Message[]>;
   anchors: Record<string, Anchor[]>;
+  threadTree: ThreadTreeNode[];
 
   activeThreadId: string | null;
   openAnchorIds: Record<string, boolean>;
@@ -38,6 +58,10 @@ export interface AppState {
     selector: { exact: string; prefix?: string; suffix?: string }
   ) => Promise<string>;
   deleteThread: (threadId: string) => Promise<void>;
+  updateThreadTitle: (threadId: string, title: string) => Promise<void>;
+  setThreadTree: (tree: ThreadTreeNode[]) => void;
+  removeThreadFromTree: (threadId: string) => void;
+  resetStore: () => void;
   prefetchDescendants: (rootId: string) => Promise<void>;
   prefetchAncestors: (threadId: string) => Promise<void>;
   setActiveThreadId: (id: string | null) => void;
@@ -48,6 +72,7 @@ export const useStore = create<AppState>()(
     threads: {},
     messages: {},
     anchors: {},
+    threadTree: [],
     activeThreadId: null,
     openAnchorIds: {},
     pendingResponses: {},
@@ -93,6 +118,36 @@ export const useStore = create<AppState>()(
         s.threads[thread.id] = thread;
         s.messages[thread.id] = [];
         s.activeThreadId = thread.id;
+
+        // Add to threadTree
+        const threadNode: ThreadTreeNode = {
+          id: thread.id,
+          user_id: thread.user_id,
+          parent_id: thread.parent_id,
+          title: thread.title,
+          created_at: thread.created_at,
+          children: [],
+          messageCount: 0,
+          lastActivity: thread.created_at,
+        };
+
+        if (parentId) {
+          // Find parent and add as child
+          const addToParent = (tree: ThreadTreeNode[]): boolean => {
+            for (const node of tree) {
+              if (node.id === parentId) {
+                node.children.push(threadNode);
+                return true;
+              }
+              if (addToParent(node.children)) return true;
+            }
+            return false;
+          };
+          addToParent(s.threadTree);
+        } else {
+          // Add as root thread
+          s.threadTree.push(threadNode);
+        }
       });
       return thread.id;
     },
@@ -123,6 +178,18 @@ export const useStore = create<AppState>()(
         await dbUpdateThreadTitle(threadId, title);
         set((s) => {
           s.threads[threadId].title = title;
+
+          // Also update in threadTree
+          const updateTitleInTree = (tree: ThreadTreeNode[]): void => {
+            tree.forEach((thread) => {
+              if (thread.id === threadId) {
+                thread.title = title;
+              } else if (thread.children.length > 0) {
+                updateTitleInTree(thread.children);
+              }
+            });
+          };
+          updateTitleInTree(s.threadTree);
         });
       }
 
@@ -208,6 +275,31 @@ export const useStore = create<AppState>()(
         s.anchors[parentThreadId] ??= [];
         s.anchors[parentThreadId].push(anchor);
         s.activeThreadId = child.id;
+
+        // Add to threadTree
+        const threadNode: ThreadTreeNode = {
+          id: child.id,
+          user_id: child.user_id,
+          parent_id: child.parent_id,
+          title: child.title,
+          created_at: child.created_at,
+          children: [],
+          messageCount: 0,
+          lastActivity: child.created_at,
+        };
+
+        // Find parent and add as child
+        const addToParent = (tree: ThreadTreeNode[]): boolean => {
+          for (const node of tree) {
+            if (node.id === parentThreadId) {
+              node.children.push(threadNode);
+              return true;
+            }
+            if (addToParent(node.children)) return true;
+          }
+          return false;
+        };
+        addToParent(s.threadTree);
       });
       return child.id;
     },
@@ -224,8 +316,53 @@ export const useStore = create<AppState>()(
         delete s.anchors[threadId];
 
         if (s.activeThreadId === threadId) s.activeThreadId = null;
+
+        // Remove from thread tree
+        s.threadTree = removeThreadFromTreeRecursive(s.threadTree, threadId);
+      });
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
+    },
+
+    updateThreadTitle: async (threadId: string, title: string) => {
+      await dbUpdateThreadTitle(threadId, title);
+      set((s) => {
+        if (s.threads[threadId]) {
+          s.threads[threadId].title = title;
+        }
+        // Also update in threadTree
+        const updateTitleInTree = (tree: ThreadTreeNode[]): void => {
+          tree.forEach((thread) => {
+            if (thread.id === threadId) {
+              thread.title = title;
+            } else if (thread.children.length > 0) {
+              updateTitleInTree(thread.children);
+            }
+          });
+        };
+        updateTitleInTree(s.threadTree);
       });
     },
+
+    setThreadTree: (tree) => set({ threadTree: tree }),
+
+    removeThreadFromTree: (threadId) =>
+      set((s) => {
+        s.threadTree = removeThreadFromTreeRecursive(s.threadTree, threadId);
+      }),
+
+    resetStore: () =>
+      set(() => ({
+        threads: {},
+        messages: {},
+        anchors: {},
+        threadTree: [],
+        activeThreadId: null,
+        openAnchorIds: {},
+        pendingResponses: {},
+      })),
 
     prefetchDescendants: async (rootId: string) => {
       const visited = new Set<string>();

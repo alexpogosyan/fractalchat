@@ -13,12 +13,12 @@ export function BranchButton({
         left: rect.left + 20,
         zIndex: 1000,
       }}
-      className="cursor-pointer bg-blue-600 text-white text-lg font-bold px-2 py-1 rounded shadow w-10 h-10"
+      className="cursor-pointer bg-blue-600 text-white text-md font-bold px-2 py-1 rounded shadow h-10"
       onMouseDown={(e) => e.preventDefault()}
       onTouchStart={(e) => e.preventDefault()}
       onClick={onClick}
     >
-      +
+      + Branch
     </button>
   );
 }

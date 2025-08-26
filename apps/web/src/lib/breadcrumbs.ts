@@ -13,7 +13,7 @@ function findThreadInTree(
     if (thread.id === threadId) {
       return thread;
     }
-    
+
     // Recursively search in children
     const found = findThreadInTree(thread.children, threadId);
     if (found) return found;
@@ -27,7 +27,7 @@ function findThreadInTree(
  */
 export function getBreadcrumbPath(
   threadTree: ThreadTreeNode[],
-  threadId: string | null
+  threadId: string | null | undefined
 ): ThreadTreeNode[] {
   if (!threadId) return [];
 
@@ -41,7 +41,7 @@ export function getBreadcrumbPath(
   // Build path by going up the parent chain
   while (current) {
     path.unshift(current);
-    
+
     // Find parent thread
     if (current.parent_id) {
       current = findThreadInTree(threadTree, current.parent_id);

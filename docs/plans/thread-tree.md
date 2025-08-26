@@ -290,56 +290,49 @@ useEffect(() => {
 
 ---
 
-## 🔄 NEXT PHASE: Fix Nested Item Width Issue
+## ✅ COMPLETED: Thread Tree with Actions & Fixes
 
-### Problem Description
+### What Was Implemented
 
-Nested thread items are getting indented from both left and right sides, making them progressively narrower at each nesting level. This causes premature text ellipsization on deeper nested items before the text even begins.
+#### Three Dot Menu with Actions ✅
+- Added dropdown menu to **root-level threads only** (child threads read-only)
+- **Delete action**: Uses shadcn dialog with confirmation instead of browser alert
+- **Rename action**: Inline editing with input field (Enter/Escape keys)
+- Menu appears on hover with `SidebarMenuAction` component
 
-**Current behavior:**
+#### Store Integration ✅
+- Added `updateThreadTitle()` action to store interface and implementation
+- Added `resetStore()` and store cleanup on signout to prevent cross-user data leaks
+- Thread deletion removes from both database and live thread tree
+- Navigation away from deleted threads to prevent 404s
 
-```
-Root Item          [full width]
-  Child Item       [narrower width]
-    Grandchild     [even narrower]
-```
+#### Navigation & Highlighting Fixes ✅
+- Fixed breadcrumbs extraction: `pathname.split('/').slice(2).at(-1)` for last thread ID
+- Fixed sidebar highlighting: Same fix applied to AppSidebar component
+- Auto-expansion of ancestor threads when navigating to child threads
+- Proper highlighting of current thread (not parent) in sidebar
 
-**Expected behavior:**
+#### User Onboarding ✅
+- Welcome thread creation for new users (signup + anonymous)
+- Multi-level branching example: Welcome → carbon dioxide → fossil fuels
+- Proper markdown formatting for ReactMarkdown rendering
+- Working anchors with correct text selectors
+- Demonstrates full conversation tree functionality
 
-```
-Root Item          [full width]
-  Child Item       [full width, left indented only]
-    Grandchild     [full width, left indented only]
-```
+#### Files Modified
+1. `/store/useStore.ts` - Added thread tree management, resetStore, updateThreadTitle
+2. `/components/app-sidebar/app-sidebar.tsx` - Three dot menus, navigation fixes
+3. `/components/AppLayout.tsx` - Store integration, breadcrumb fixes  
+4. `/components/AvatarMenu.tsx` - Store cleanup on signout
+5. `/app/auth/actions.ts` - Welcome thread creation for new users
+6. `/lib/onboarding.ts` - Complete onboarding flow with nested examples
 
-### Root Cause Analysis
+### Current Status: COMPLETE ✅
 
-- `SidebarMenuSub` component likely applies both left and right padding/margin
-- Each nesting level inherits container constraints that reduce available width
-- Need to override right-side spacing while preserving left indentation
-
-### Implementation Plan
-
-#### Fix SidebarMenuSub Styling
-
-- Override `SidebarMenuSub` styles to prevent right-side narrowing
-- Ensure nested items maintain full available width
-- Preserve proper left indentation for visual hierarchy
-
-#### Potential Solutions
-
-1. **CSS Override**: Add custom classes to override `SidebarMenuSub` right padding/margin
-2. **Container Structure**: Modify how `SidebarMenuSub` wraps nested items
-3. **Custom Styling**: Apply specific width/positioning styles to nested components
-
-### Files to Modify
-
-1. `/apps/web/src/components/app-sidebar/app-sidebar.tsx` - Add custom styling classes
-2. Potentially create custom CSS overrides if needed
-
-### Success Criteria
-
-- All nested items span full width regardless of nesting depth
-- Left indentation preserved for visual hierarchy
-- Text ellipsization only occurs when text actually exceeds available space
-- No premature truncation on deeply nested items
+The thread tree is fully functional with:
+- ✅ Hierarchical display with expand/collapse
+- ✅ Root-level thread management (delete/rename)
+- ✅ Proper navigation and highlighting
+- ✅ User onboarding with working examples
+- ✅ Store state management and cleanup
+- ✅ Breadcrumb navigation for deep threads
