@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
   Dialog,
@@ -274,32 +273,39 @@ function ThreadTreeItem({
 
   return (
     <SidebarMenuItem>
-      <Collapsible open={expanded} onOpenChange={handleToggle}>
-        <CollapsibleTrigger asChild>
-          <SidebarMenuButton asChild isActive={isActive}>
-            <Link href={`/t/${thread.id}`}>
+      <Collapsible open={expanded}>
+        <SidebarMenuButton asChild isActive={isActive}>
+          <Link href={`/t/${thread.id}`}>
+            <span
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleToggle();
+              }}
+              className="flex items-center"
+            >
               <ChevronRight
-                className={`transition-transform ${
+                className={`size-3 transition-transform cursor-pointer ${
                   expanded ? "rotate-90" : ""
                 }`}
               />
-              {isRootLevel && isRenaming ? (
-                <input
-                  value={tempTitle}
-                  onChange={(e) => setTempTitle(e.target.value)}
-                  onBlur={handleRenameSubmit}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleRenameSubmit();
-                    if (e.key === "Escape") handleRenameCancel();
-                  }}
-                  className="bg-transparent border-none outline-none truncate"
-                />
-              ) : (
-                <span className="truncate">{threadTitle}</span>
-              )}
-            </Link>
-          </SidebarMenuButton>
-        </CollapsibleTrigger>
+            </span>
+            {isRootLevel && isRenaming ? (
+              <input
+                value={tempTitle}
+                onChange={(e) => setTempTitle(e.target.value)}
+                onBlur={handleRenameSubmit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleRenameSubmit();
+                  if (e.key === "Escape") handleRenameCancel();
+                }}
+                className="bg-transparent border-none outline-none truncate"
+              />
+            ) : (
+              <span className="truncate">{threadTitle}</span>
+            )}
+          </Link>
+        </SidebarMenuButton>
         {isRootLevel && (
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
